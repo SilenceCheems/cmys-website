@@ -88,7 +88,7 @@ export function Footer() {
 
          {/* Right 1/3: Animation location */}
          <div className="flex items-center justify-center relative">
-            <div className="w-full max-w-[300px]">
+            <div className="w-full max-w-[300px] aspect-square">
               <AsciiEarth />
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-32 opacity-40">
