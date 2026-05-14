@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FORTUNES, Fortune } from "../constants/fortunes";
 import { cn } from "../lib/utils";
 
@@ -8,16 +8,70 @@ type AnimationStage = "idle" | "drawing" | "glitch" | "unfolding" | "settled";
 interface FortuneSystemProps {
   isOpen: boolean;
   onClose: () => void;
+  onDailyFortuneSet: (fortune: Fortune | null) => void;
 }
 
-export function FortuneSystem({ isOpen, onClose }: FortuneSystemProps) {
+const STORAGE_KEY = "esu_fortune_daily";
+const STORAGE_DATE_KEY = "esu_fortune_date";
+
+interface DailyFortuneData {
+  fortuneId: string;
+  date: string;
+}
+
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+function getStoredDailyFortune(): string | null {
+  try {
+    const storedDate = localStorage.getItem(STORAGE_DATE_KEY);
+    const today = getTodayDate();
+    if (storedDate === today) {
+      return localStorage.getItem(STORAGE_KEY);
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function saveDailyFortune(fortuneId: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, fortuneId);
+    localStorage.setItem(STORAGE_DATE_KEY, getTodayDate());
+  } catch {
+  }
+}
+
+export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSystemProps) {
   const [stage, setStage] = useState<AnimationStage>("idle");
   const [fortune, setFortune] = useState<Fortune | null>(null);
+
+  const startSequence = useCallback(async () => {
+    const storedFortuneId = getStoredDailyFortune();
+    if (storedFortuneId) {
+      const existingFortune = FORTUNES.find((f) => f.id === storedFortuneId);
+      setFortune(existingFortune || null);
+      onDailyFortuneSet(existingFortune || null);
+    } else {
+      const newFortune = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+      setFortune(newFortune);
+      saveDailyFortune(newFortune.id);
+      onDailyFortuneSet(newFortune);
+    }
+    setStage("drawing");
+    await new Promise((r) => setTimeout(r, 1200));
+    setStage("glitch");
+    await new Promise((r) => setTimeout(r, 800));
+    setStage("unfolding");
+    await new Promise((r) => setTimeout(r, 1000));
+    setStage("settled");
+  }, [onDailyFortuneSet]);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      setFortune(FORTUNES[Math.floor(Math.random() * FORTUNES.length)]);
       startSequence();
     } else {
       document.body.style.overflow = "";
@@ -26,17 +80,7 @@ export function FortuneSystem({ isOpen, onClose }: FortuneSystemProps) {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
-
-  const startSequence = async () => {
-    setStage("drawing");
-    await new Promise((r) => setTimeout(r, 1200));
-    setStage("glitch");
-    await new Promise((r) => setTimeout(r, 800));
-    setStage("unfolding");
-    await new Promise((r) => setTimeout(r, 1000));
-    setStage("settled");
-  };
+  }, [isOpen, startSequence]);
 
   return (
     <AnimatePresence>

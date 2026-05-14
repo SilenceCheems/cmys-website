@@ -1,11 +1,15 @@
 import { motion } from "motion/react";
 import { cn } from "../lib/utils";
+import { Fortune } from "../constants/fortunes";
 
 interface ContactProps {
   onOpenFortune: () => void;
+  dailyFortune: Fortune | null;
 }
 
-export function Contact({ onOpenFortune }: ContactProps) {
+export function Contact({ onOpenFortune, dailyFortune }: ContactProps) {
+  const hasDrawnToday = dailyFortune !== null;
+  
   return (
     <section id="contact" className="relative min-h-[100svh] w-full flex flex-col items-center justify-center bg-canvas snap-always snap-start overflow-hidden">
       {/* Background Grid Lines to match timeline */}
@@ -25,16 +29,16 @@ export function Contact({ onOpenFortune }: ContactProps) {
       >
         <div className="flex flex-col items-center gap-2">
           <span className="font-mono text-sm tracking-widest text-secondary uppercase py-1 border-b border-primary/20">
-            看看你的运气
+            {hasDrawnToday ? "今日运势已揭晓" : "看看你的运气"}
           </span>
         </div>
 
         {/* osu! style button */}
         <motion.button
           onClick={onOpenFortune}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          animate={{
+          whileHover={hasDrawnToday ? {} : { scale: 1.1 }}
+          whileTap={hasDrawnToday ? {} : { scale: 0.9 }}
+          animate={hasDrawnToday ? {} : {
             scale: [1, 1.04, 1],
           }}
           transition={{
@@ -46,20 +50,25 @@ export function Contact({ onOpenFortune }: ContactProps) {
           }}
           className={cn(
             "relative flex items-center justify-center w-48 h-48 rounded-full",
-            "bg-[#ff66aa] border-[12px] border-white cursor-pointer shadow-xl",
-            "hover:shadow-2xl transition-shadow duration-300"
+            hasDrawnToday 
+              ? "bg-[#888] border-[12px] border-white cursor-pointer shadow-xl opacity-60" 
+              : "bg-[#ff66aa] border-[12px] border-white cursor-pointer shadow-xl hover:shadow-2xl transition-shadow duration-300",
+            "transition-all duration-300"
           )}
         >
           {/* Inner ring decoration */}
           <div className="absolute inset-1 rounded-full border-2 border-white/40 pointer-events-none" />
           
           <span className="text-white text-5xl font-bold tracking-tighter drop-shadow-md pr-2">
-            esu!
+            {hasDrawnToday ? "esu" : "esu!"}
           </span>
         </motion.button>
         
         <p className="text-secondary font-mono text-xs uppercase tracking-widest mt-4">
-          Click to draw your fortune
+          {hasDrawnToday 
+            ? `今日运势: ${dailyFortune?.name || "已抽取"}`
+            : "Click to draw your fortune"
+          }
         </p>
       </motion.div>
     </section>
