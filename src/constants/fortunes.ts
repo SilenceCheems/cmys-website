@@ -205,7 +205,7 @@ export const FORTUNES: Fortune[] = [
   },
   {
     "id": "29",
-    "name": "纯粹月色",
+    "name": "纯美月色",
     "fortune": "大吉，浪漫",
     "explanation": "清澈无杂质的月光。",
     "description": "桃花运上升，适合约会、表白或修复关系，夜晚灵感强，艺术工作者易出佳作。"
