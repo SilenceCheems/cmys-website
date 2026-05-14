@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "motion/react";
 import { cn } from "../lib/utils";
 import React, { useRef, useEffect, useState } from "react";
+import { AsciiEarth } from "./AsciiEarth";
 
 function FooterArt({ isCenter }: { isCenter: boolean }) {
   return (
@@ -88,7 +89,7 @@ export function Footer() {
          {/* Right 1/3: Animation location */}
          <div className="flex items-center justify-center relative">
             <div className="w-full max-w-[300px]">
-              <FooterArt isCenter={false} />
+              <AsciiEarth />
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-32 opacity-40">
               <span className="font-mono text-[8px] tracking-[0.4em] text-white/40 uppercase">

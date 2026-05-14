@@ -208,7 +208,7 @@ function CardPhase({ stage, fortune }: { stage: AnimationStage; fortune: Fortune
               animate={{ opacity: 1, x: 0 }}
               className="font-mono text-[10px] tracking-[0.4em] text-white/40 uppercase"
             >
-              Fortune Protocol v2.6
+              Fortune Card
             </motion.span>
             <motion.span 
               initial={{ opacity: 0, x: 10 }}
