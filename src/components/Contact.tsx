@@ -1,9 +1,13 @@
 import { motion } from "motion/react";
 import { cn } from "../lib/utils";
 
-export function Contact() {
+interface ContactProps {
+  onOpenFortune: () => void;
+}
+
+export function Contact({ onOpenFortune }: ContactProps) {
   return (
-    <section className="relative min-h-[100svh] w-full flex flex-col items-center justify-center bg-canvas snap-always snap-start overflow-hidden">
+    <section id="contact" className="relative min-h-[100svh] w-full flex flex-col items-center justify-center bg-canvas snap-always snap-start overflow-hidden">
       {/* Background Grid Lines to match timeline */}
       <div className="absolute inset-0 pointer-events-none opacity-10"
         style={{
@@ -21,15 +25,13 @@ export function Contact() {
       >
         <div className="flex flex-col items-center gap-2">
           <span className="font-mono text-sm tracking-widest text-secondary uppercase py-1 border-b border-primary/20">
-            Contact & Links
+            看看你的运气
           </span>
         </div>
 
         {/* osu! style button */}
-        <motion.a
-          href="https://ys.mihoyo.com"
-          target="_blank"
-          rel="noopener noreferrer"
+        <motion.button
+          onClick={onOpenFortune}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           animate={{
@@ -54,10 +56,10 @@ export function Contact() {
           <span className="text-white text-5xl font-bold tracking-tighter drop-shadow-md pr-2">
             esu!
           </span>
-        </motion.a>
+        </motion.button>
         
         <p className="text-secondary font-mono text-xs uppercase tracking-widest mt-4">
-          Click to view
+          Click to draw your fortune
         </p>
       </motion.div>
     </section>

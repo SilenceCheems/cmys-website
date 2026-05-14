@@ -6,6 +6,7 @@ interface GridCardProps {
   event: TimelineEvent;
   index: number;
   compact?: boolean;
+  key?: string | number;
 }
 
 export function GridCard({ event, index, compact = false }: GridCardProps) {

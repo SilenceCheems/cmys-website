@@ -77,11 +77,6 @@ export function Hero() {
         transition={{ delay: 2, duration: 1 }}
       >
         <span className="text-xs font-mono text-secondary">SCROLL TO DISCOVER</span>
-        <motion.div 
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent"
-        />
       </motion.div>
     </section>
   );
