@@ -56,15 +56,6 @@ export function Hero() {
             transition={{ duration: 1.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="h-[1px] w-32 bg-primary mx-auto opacity-30 mt-8 mb-4"
           />
-          <motion.p
-             initial={{ opacity: 0, y: 10 }}
-             whileInView={{ opacity: 1, y: 0 }}
-             viewport={{ once: false, amount: 0.5 }}
-             transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-             className="text-secondary font-mono text-sm tracking-widest uppercase"
-          >
-            Chronological Deconstruction
-          </motion.p>
         </motion.div>
       </div>
       
@@ -76,7 +67,7 @@ export function Hero() {
         viewport={{ once: false, amount: 0.5 }}
         transition={{ delay: 2, duration: 1 }}
       >
-        <span className="text-xs font-mono text-secondary">SCROLL TO DISCOVER</span>
+        <span className="text-xs font-mono text-secondary">SCROLL</span>
       </motion.div>
     </section>
   );

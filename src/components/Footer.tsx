@@ -41,9 +41,18 @@ function FooterArt({ isCenter }: { isCenter: boolean }) {
 
 export function Footer() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [cstTime, setCstTime] = useState<string>("");
   
   const currentYear = new Date().getFullYear();
-  const utcTime = new Date().toUTCString().split(' ')[4];
+
+  useEffect(() => {
+    const updateTime = () => {
+      setCstTime(new Date().toLocaleTimeString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <footer className="relative bg-dark text-[#F0F0F0] noise-bg snap-always snap-start min-h-[100svh] flex flex-col justify-between overflow-hidden">
@@ -54,7 +63,7 @@ export function Footer() {
             <div key={i} className="flex items-center gap-12 px-6 whitespace-nowrap">
               <span className="font-mono text-[10px] tracking-widest text-[#888888]">CURRENT STATUS: DESIGNING FUTURE</span>
               <span className="font-mono text-[10px] tracking-widest text-white/40">●</span>
-              <span className="font-mono text-[10px] tracking-widest text-[#888888]">UTC TIME: {utcTime}</span>
+              <span className="font-mono text-[10px] tracking-widest text-[#888888]">CST TIME: {cstTime}</span>
               <span className="font-mono text-[10px] tracking-widest text-white/40">●</span>
               <span className="font-mono text-[10px] tracking-widest text-[#888888]">2026 REVISION CMYS.TOP</span>
               <span className="font-mono text-[10px] tracking-widest text-white/40">●</span>
@@ -69,7 +78,7 @@ export function Footer() {
          <div className="flex flex-col gap-8 justify-center items-center md:items-start py-20 z-10 origin-left">
             <h2 className="font-serif text-8xl md:text-9xl tracking-tighter mix-blend-difference leading-none">CMYS.TOP</h2>
             <p className="font-mono text-[12px] text-white/30 max-w-sm leading-relaxed text-center md:text-left">
-              DECONSTRUCTIVISM IN INTERFACE DESIGN. PHILOSOPHICAL CONNOTATIONS AND FORMAL EXPRESSION.
+              我昨天沉默有诗炒了一盘纯棉睡衣，吃的时候踩没雨水，结果长眠夜湿了。
             </p>
          </div>
 
@@ -95,7 +104,7 @@ export function Footer() {
             © {currentYear} CMYS.TOP / ALL RIGHTS RESERVED
          </span>
          <div className="flex gap-8">
-            <span className="font-mono text-[10px] text-white/20">45° 52' N, 10° 12' E</span>
+            <span className="font-mono text-[10px] text-white/20">35°18' N, 113°54' E</span>
             <span className="font-mono text-[10px] text-white/20">V. 2026.04</span>
          </div>
       </div>

@@ -43,11 +43,6 @@ export function DecorativeScrollbar() {
           </div>
         </motion.div>
       </div>
-
-      {/* Label */}
-      <div className="font-mono text-[8px] text-primary/40 uppercase tracking-[0.3em] h-12 flex items-center justify-center transform rotate-90 whitespace-nowrap">
-        SCROLL_LAB_V2
-      </div>
     </div>
   );
 }
