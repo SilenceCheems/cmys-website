@@ -4,14 +4,14 @@
  */
 
 import { useState, useEffect } from "react";
-import { Hero } from "./components/Hero";
-import { Timeline } from "./components/Timeline";
-import { Contact } from "./components/Contact";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { DecorativeScrollbar } from "./components/DecorativeScrollbar";
 import { FortuneSystem } from "./components/FortuneSystem";
 import { Fortune } from "./constants/fortunes";
+import { HomePage } from "./pages/HomePage";
+import { GachaPage } from "./pages/GachaPage";
 
 const STORAGE_DATE_KEY = "esu_fortune_date";
 const STORAGE_KEY = "esu_fortune_daily";
@@ -34,6 +34,51 @@ function getStoredDailyFortune(fortunes: Fortune[]): Fortune | null {
   }
 }
 
+function AppContent({ 
+  onOpenFortune, 
+  dailyFortune, 
+  isFortuneOpen, 
+  onCloseFortune, 
+  onDailyFortuneSet 
+}: { 
+  onOpenFortune: () => void, 
+  dailyFortune: Fortune | null,
+  isFortuneOpen: boolean,
+  onCloseFortune: () => void,
+  onDailyFortuneSet: (f: Fortune | null) => void
+}) {
+  const location = useLocation();
+  const showFooter = location.pathname !== "/gacha";
+
+  return (
+    <div className="relative">
+      <DecorativeScrollbar />
+      <Header />
+      <main className="relative z-20 min-h-screen bg-canvas text-primary font-sans selection:bg-primary selection:text-canvas">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route 
+            path="/gacha" 
+            element={
+              <GachaPage 
+                onOpenFortune={onOpenFortune} 
+                dailyFortune={dailyFortune}
+              />
+            } 
+          />
+        </Routes>
+      </main>
+      {showFooter && <Footer />}
+
+      <FortuneSystem 
+        isOpen={isFortuneOpen} 
+        onClose={onCloseFortune} 
+        onDailyFortuneSet={onDailyFortuneSet}
+      />
+    </div>
+  );
+}
+
 export default function App() {
   const [isFortuneOpen, setIsFortuneOpen] = useState(false);
   const [dailyFortune, setDailyFortune] = useState<Fortune | null>(null);
@@ -53,25 +98,15 @@ export default function App() {
   };
 
   return (
-    <div className="relative">
-      <DecorativeScrollbar />
-      <Header />
-      <main className="relative z-20 min-h-screen bg-canvas text-primary font-sans selection:bg-primary selection:text-canvas">
-        <Hero />
-        <Timeline />
-        <Contact 
-          onOpenFortune={handleOpenFortune} 
-          dailyFortune={dailyFortune}
-        />
-      </main>
-      <Footer />
-
-      <FortuneSystem 
-        isOpen={isFortuneOpen} 
-        onClose={() => setIsFortuneOpen(false)} 
+    <BrowserRouter>
+      <AppContent 
+        onOpenFortune={handleOpenFortune}
+        dailyFortune={dailyFortune}
+        isFortuneOpen={isFortuneOpen}
+        onCloseFortune={() => setIsFortuneOpen(false)}
         onDailyFortuneSet={setDailyFortune}
       />
-    </div>
+    </BrowserRouter>
   );
 }
 

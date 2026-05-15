@@ -1,27 +1,46 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { cn } from "../lib/utils";
-
-function scrollToSection(sectionId: string) {
-  const element = document.getElementById(sectionId);
-  if (element) {
-    element.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function Header() {
   const { scrollYProgress } = useScroll();
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const height = useTransform(scrollYProgress, [0, 0.2], ["15vh", "8vh"]);
   const logoScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.7]);
-  const headerY = useTransform(scrollYProgress, [0.85, 0.9], ["0%", "-100%"]);
-  const headerOpacity = useTransform(scrollYProgress, [0.85, 0.9], [1, 0]);
+  const isGachaPage = location.pathname === "/gacha";
+  const headerY = useTransform(scrollYProgress, [0.85, 0.9], [isGachaPage ? "0%" : "0%", isGachaPage ? "0%" : "-100%"]);
+  const headerOpacity = useTransform(scrollYProgress, [0.85, 0.9], [1, isGachaPage ? 1 : 0]);
 
   const navLinks = [
-    { name: "纯墨韵声", section: "roots" },
-    { name: "驰鸣羽势", section: "growth" },
-    { name: "诚盟远溯", section: "now" },
-    { name: "聪明一世", section: "contact" },
+    { name: "纯墨韵声", section: "roots", type: "anchor" },
+    { name: "驰鸣羽势", section: "growth", type: "anchor" },
+    { name: "诚盟远溯", section: "now", type: "anchor" },
+    { name: "聪明一世", path: "/gacha", type: "route" },
   ];
+
+  const handleNavClick = (link: any) => {
+    if (link.type === "route") {
+      navigate(link.path);
+    } else {
+      if (location.pathname !== "/") {
+        navigate("/");
+        // Wait for navigation and rendering then scroll
+        setTimeout(() => {
+          const element = document.getElementById(link.section);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      } else {
+        const element = document.getElementById(link.section);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+  };
 
   return (
     <motion.header
@@ -31,8 +50,13 @@ export function Header() {
       <div className="w-full grid grid-cols-3 items-center">
         {/* Left Nav */}
         <nav className="hidden md:flex gap-8 items-center">
-          {navLinks.slice(0, 2).map((link) => (
-            <NavLink key={link.name} name={link.name} sectionId={link.section} />
+          {!isGachaPage && navLinks.slice(0, 2).map((link) => (
+            <NavLink 
+              key={link.name} 
+              name={link.name} 
+              onClick={() => handleNavClick(link)} 
+              isActive={link.type === 'route' ? location.pathname === link.path : false}
+            />
           ))}
         </nav>
         <div className="md:hidden" />
@@ -43,7 +67,13 @@ export function Header() {
           className="flex justify-center items-center"
         >
           <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => {
+              if (location.pathname !== "/") {
+                navigate("/");
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
             className="font-serif text-4xl sm:text-5xl tracking-tighter text-primary group overflow-hidden cursor-pointer"
           >
             <motion.span 
@@ -61,8 +91,13 @@ export function Header() {
 
         {/* Right Nav */}
         <nav className="hidden md:flex gap-8 items-center justify-end">
-          {navLinks.slice(2).map((link) => (
-            <NavLink key={link.name} name={link.name} sectionId={link.section} />
+          {!isGachaPage && navLinks.slice(2).map((link) => (
+            <NavLink 
+              key={link.name} 
+              name={link.name} 
+              onClick={() => handleNavClick(link)} 
+              isActive={link.type === 'route' ? location.pathname === link.path : false}
+            />
           ))}
         </nav>
         <div className="md:hidden" />
@@ -76,16 +111,29 @@ export function Header() {
   );
 }
 
-function NavLink({ name, sectionId }: { name: string; sectionId: string; key?: string | number }) {
+function NavLink({ 
+  name, 
+  onClick, 
+  isActive 
+}: { 
+  name: string; 
+  onClick: () => void; 
+  isActive?: boolean;
+  key?: any;
+}) {
   return (
     <button 
-      onClick={() => scrollToSection(sectionId)}
-      className="relative group font-mono text-xs tracking-[0.2em] text-secondary hover:text-primary transition-colors py-2 cursor-pointer"
+      onClick={onClick}
+      className={cn(
+        "relative group font-mono text-xs tracking-[0.2em] transition-colors py-2 cursor-pointer",
+        isActive ? "text-primary" : "text-secondary hover:text-primary"
+      )}
     >
       {name}
       <motion.span 
         className="absolute bottom-1 left-0 h-[1px] bg-primary"
-        initial={{ width: 0 }}
+        initial={{ width: isActive ? "100%" : 0 }}
+        animate={{ width: isActive ? "100%" : 0 }}
         whileHover={{ width: "100%" }}
         transition={{ duration: 0.4, ease: "circOut" }}
       />
