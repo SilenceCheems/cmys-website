@@ -16,6 +16,15 @@ const STORAGE_KEY = "esu_fortune_daily";
 const STORAGE_DATE_KEY = "esu_fortune_date";
 const STORAGE_UNIQUE_ID_KEY = "esu_fortune_unique_id";
 
+// 调试开关：设为 true 时强制使用内置浏览器的交互方案
+const InAppDebug = false;
+
+function checkIsInApp(): boolean {
+  if (InAppDebug) return true;
+  const ua = navigator.userAgent.toLowerCase();
+  return /MicroMessenger/i.test(ua) || /QQ/i.test(ua);
+}
+
 function getTodayDate(): string {
   // 返回中国标准时间 (CST, UTC+8) 的日期字符串 (YYYY-MM-DD)
   const now = new Date();
@@ -74,6 +83,8 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
   const [stage, setStage] = useState<AnimationStage>("idle");
   const [fortune, setFortune] = useState<Fortune | null>(null);
   const [displayId, setDisplayId] = useState<string>("");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showShareHint, setShowShareHint] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const startSequence = useCallback(async () => {
@@ -118,11 +129,22 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
     } else {
       document.body.style.overflow = "";
       setStage("idle");
+      setPreviewImage(null);
+      setShowShareHint(false);
     }
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen, startSequence]);
+
+  useEffect(() => {
+    if (showShareHint) {
+      const timer = setTimeout(() => {
+        setShowShareHint(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showShareHint]);
 
   const handleDownload = async () => {
     if (cardRef.current) {
@@ -131,10 +153,15 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
           cacheBust: true,
           pixelRatio: 2,
         });
-        const link = document.createElement("a");
-        link.download = `esu-fortune-${displayId}.png`;
-        link.href = dataUrl;
-        link.click();
+
+        if (checkIsInApp()) {
+          setPreviewImage(dataUrl);
+        } else {
+          const link = document.createElement("a");
+          link.download = `esu-fortune-${displayId}.png`;
+          link.href = dataUrl;
+          link.click();
+        }
       } catch (err) {
         console.error("Failed to download image", err);
       }
@@ -142,10 +169,15 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
   };
 
   const handleShare = async () => {
+    if (checkIsInApp()) {
+      setShowShareHint(true);
+      return;
+    }
+
     const fortuneLevel = fortune?.fortune.split(/[，,]/)[0] || "";
-    const shareText = `我的今日运势是${fortuneLevel}「${fortune?.name}」，来cmys.top/gacha 抽取你的专属cmys运势卡`;
+    const shareText = `我的今日运势是「${fortuneLevel} ${fortune?.name}」，来cmys.top/gacha抽取你的专属cmys运势卡`;
     const shareData = {
-      title: "CMYS esu! Fortune",
+      title: "esu! Fortune",
       text: shareText,
     };
 
@@ -211,6 +243,71 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
               </div>
             )}
           </div>
+
+          <AnimatePresence>
+            {previewImage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-black/90 p-8"
+              >
+                <div className="relative w-full max-w-[400px] aspect-[3/4.5] shadow-2xl overflow-hidden rounded-lg">
+                  <img 
+                    src={previewImage} 
+                    alt="Fortune Card" 
+                    className="w-full h-full object-contain pointer-events-auto"
+                    onContextMenu={(e) => e.stopPropagation()} // Allow context menu for long press
+                  />
+                </div>
+                <div className="mt-8 flex flex-col items-center gap-6 text-center">
+                  <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary animate-pulse">
+                    press to save to album
+                  </p>
+                  <button 
+                    onClick={() => setPreviewImage(null)}
+                    className="group relative py-2 font-mono text-[10px] tracking-[0.3em] uppercase text-white/60 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Back
+                    <motion.span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-300" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Share Hint Overlay (In-App) */}
+          <AnimatePresence>
+            {showShareHint && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowShareHint(false)}
+                className="fixed inset-0 z-[300] bg-black/60 flex items-center justify-center p-6"
+              >
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-white p-8 px-14 flex flex-col items-center gap-4 text-center min-w-[320px] max-w-[450px] shadow-2xl"
+                  style={{
+                    clipPath: "polygon(30px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 30px 100%, 0 50%)"
+                  }}
+                >
+                  <p className="font-mono text-[11px] tracking-[0.1em] text-black leading-relaxed">
+                    请点击 <span className="text-primary font-bold">Download</span> 并长按分享给好友
+                  </p>
+                  <button 
+                    onClick={() => setShowShareHint(false)}
+                    className="group relative py-1 font-mono text-[10px] tracking-[0.3em] uppercase text-black/40 hover:text-black transition-colors cursor-pointer"
+                  >
+                    Got it
+                    <motion.span className="absolute bottom-0 left-0 w-0 h-[1px] bg-black group-hover:w-full transition-all duration-300" />
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
