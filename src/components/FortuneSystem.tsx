@@ -72,11 +72,17 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
     if (stored) {
       targetFortune = FORTUNES.find((f) => f.id === stored.fortuneId) || null;
       finalUniqueId = stored.uniqueId;
-    } else {
-      targetFortune = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
-      finalUniqueId = generateUniqueId(targetFortune.id);
-      saveDailyFortune(targetFortune.id, finalUniqueId);
+      
+      setFortune(targetFortune);
+      setDisplayId(finalUniqueId);
+      setStage("settled");
+      onDailyFortuneSet(targetFortune);
+      return;
     }
+
+    targetFortune = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    finalUniqueId = generateUniqueId(targetFortune.id);
+    saveDailyFortune(targetFortune.id, finalUniqueId);
 
     setFortune(targetFortune);
     setDisplayId(finalUniqueId);
@@ -125,7 +131,7 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
 
   const handleShare = async () => {
     const fortuneLevel = fortune?.fortune.split(/[，,]/)[0] || "";
-    const shareText = `我的今日运势是${fortuneLevel}「${fortune?.name}」，来cmys.top/gacha抽取你的专属cmys运势卡`;
+    const shareText = `我的今日运势是${fortuneLevel}「${fortune?.name}」，来cmys.top/gacha 抽取你的专属cmys运势卡`;
     const shareData = {
       title: "CMYS esu! Fortune",
       text: shareText,
@@ -226,12 +232,6 @@ function DrawingPhase() {
           }}
         />
       ))}
-      <motion.div 
-        initial={{ scale: 0 }}
-        animate={{ scale: [0, 2, 0], opacity: [0, 1, 0] }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary blur-sm rounded-full"
-      />
     </div>
   );
 }
