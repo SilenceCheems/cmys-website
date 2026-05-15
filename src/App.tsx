@@ -17,7 +17,19 @@ const STORAGE_DATE_KEY = "esu_fortune_date";
 const STORAGE_KEY = "esu_fortune_daily";
 
 function getTodayDate(): string {
-  return new Date().toISOString().split("T")[0];
+  // 返回中国标准时间 (CST, UTC+8) 的日期字符串 (YYYY-MM-DD)
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = formatter.formatToParts(now);
+  const year = parts.find(p => p.type === "year")?.value;
+  const month = parts.find(p => p.type === "month")?.value;
+  const day = parts.find(p => p.type === "day")?.value;
+  return `${year}-${month}-${day}`;
 }
 
 function getStoredDailyFortune(fortunes: Fortune[]): Fortune | null {
