@@ -1,13 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, MouseEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { cn } from "../lib/utils";
 
-const MUSIC_PATH = "/Luv(sic.) Part 3 (feat. MC赵小六).mp3";
-const MUSIC_NAME = "Luv(sic.) Part 3";
+const SONGS = [
+  { id: "1", title: "Luv(sic.) Part 3", artist: "MC赵小六", path: "/musics/Luv(sic.) Part 3 (feat. MC赵小六).mp3" },
+  { id: "2", title: "The Great Gig in the Sky", artist: "Pink Floyd", path: "/musics/The Great Gig in the Sky.mp4" },
+];
+
+const SHUTTLE_HEIGHT = 56;
 
 export function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [showNotification, setShowNotification] = useState(false);
-  const [showIcon, setShowIcon] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showPlayingStatus, setShowPlayingStatus] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const shuttleRef = useRef<HTMLDivElement>(null);
+
+  const currentSong = SONGS[currentSongIndex];
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -20,23 +37,24 @@ export function BackgroundMusic() {
       
       audio.play().then(() => {
         hasStarted = true;
-        setShowNotification(true);
-        // 清理所有交互监听
-        window.removeEventListener("click", startPlayback);
-        window.removeEventListener("touchstart", startPlayback);
-        window.removeEventListener("keydown", startPlayback);
+        setIsPlaying(true);
+        setIsExpanded(true);
+        setShowPlayingStatus(true);
+        
+        window.removeEventListener("wheel", handleScroll);
+        window.removeEventListener("scroll", handleScroll);
 
         setTimeout(() => {
-          setShowNotification(false);
-          setShowIcon(true);
+          setShowPlayingStatus(false);
+          setTimeout(() => {
+            setIsExpanded(false);
+          }, 1000);
         }, 3000);
       }).catch(() => {
-        // 仍然被阻止，等待下一次交互
         console.log("Autoplay blocked, waiting for interaction...");
       });
     };
 
-    // 1. 尝试直接播放（处理刷新或已有交互的情况）
     const handleCanPlay = () => {
       if (!hasStarted) startPlayback();
     };
@@ -47,90 +65,235 @@ export function BackgroundMusic() {
       audio.addEventListener("canplay", handleCanPlay, { once: true });
     }
 
-    // 2. 添加全局交互监听以解锁音频
-    window.addEventListener("click", startPlayback);
-    window.addEventListener("touchstart", startPlayback);
-    window.addEventListener("keydown", startPlayback);
+    const handleScroll = () => {
+      if (hasStarted) return;
+      window.removeEventListener("wheel", handleScroll);
+      window.removeEventListener("scroll", handleScroll);
+      startPlayback();
+    };
+
+    window.addEventListener("wheel", handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
       audio.removeEventListener("canplay", handleCanPlay);
-      window.removeEventListener("click", startPlayback);
-      window.removeEventListener("touchstart", startPlayback);
-      window.removeEventListener("keydown", startPlayback);
+      window.removeEventListener("wheel", handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.src = currentSong.path;
+      if (isPlaying) {
+        audioRef.current.play().catch(() => {});
+      }
+    }
+  }, [currentSongIndex]);
+
+  useEffect(() => {
+    if (isTouchDevice && isExpanded) {
+      autoCloseTimerRef.current = setTimeout(() => {
+        setIsExpanded(false);
+      }, 2000);
+    }
+
+    return () => {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+    };
+  }, [isExpanded, isTouchDevice]);
+
+  useEffect(() => {
+    if (!isTouchDevice) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isExpanded && shuttleRef.current && !shuttleRef.current.contains(e.target as Node)) {
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside as any);
+    return () => {
+      document.removeEventListener("click", handleClickOutside as any);
+    };
+  }, [isExpanded, isTouchDevice]);
+
+  const toggleExpand = () => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+    }
+    setIsExpanded(!isExpanded);
+  };
+
+  const togglePlay = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+    }
+    if (audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.play();
+        setIsPlaying(true);
+        setShowPlayingStatus(true);
+        setTimeout(() => setShowPlayingStatus(false), 3000);
+      } else {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+    if (isTouchDevice) {
+      autoCloseTimerRef.current = setTimeout(() => {
+        setIsExpanded(false);
+      }, 2000);
+    }
+  };
+
+  const togglePrev = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+    }
+    setCurrentSongIndex((prev) => (prev - 1 + SONGS.length) % SONGS.length);
+    setShowPlayingStatus(true);
+    setTimeout(() => setShowPlayingStatus(false), 3000);
+    if (isTouchDevice) {
+      autoCloseTimerRef.current = setTimeout(() => {
+        setIsExpanded(false);
+      }, 2000);
+    }
+  };
+
+  const toggleNext = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+    }
+    setCurrentSongIndex((prev) => (prev + 1) % SONGS.length);
+    setShowPlayingStatus(true);
+    setTimeout(() => setShowPlayingStatus(false), 3000);
+    if (isTouchDevice) {
+      autoCloseTimerRef.current = setTimeout(() => {
+        setIsExpanded(false);
+      }, 2000);
+    }
+  };
 
   return (
     <>
       <audio
         ref={audioRef}
-        src={MUSIC_PATH}
+        src={currentSong.path}
         loop
         preload="auto"
         style={{ display: "none" }}
       />
 
-      <AnimatePresence>
-        {showNotification && (
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="fixed bottom-8 right-8 z-50"
-          >
-            <div className="bg-white shadow-2xl px-6 py-4 flex items-center gap-4" style={{
-              clipPath: "polygon(20px 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0 50%)"
-            }}>
-              <div className="flex items-center gap-1 h-6">
-                {[3, 6, 4].map((h, i) => (
+      {/* Music Player Shuttle */}
+      <motion.div
+        ref={shuttleRef}
+        initial={false}
+        onClick={toggleExpand}
+        onMouseEnter={() => !isTouchDevice && setIsExpanded(true)}
+        onMouseLeave={() => {
+          if (!isTouchDevice) {
+            setTimeout(() => setIsExpanded(false), 100);
+          }
+        }}
+        animate={{
+          width: isExpanded ? 260 : SHUTTLE_HEIGHT,
+          height: SHUTTLE_HEIGHT,
+          clipPath: isExpanded 
+            ? `polygon(${SHUTTLE_HEIGHT / 2}px 0%, calc(100% - ${SHUTTLE_HEIGHT / 2}px) 0%, 100% 50%, calc(100% - ${SHUTTLE_HEIGHT / 2}px) 100%, ${SHUTTLE_HEIGHT / 2}px 100%, 0% 50%)`
+            : `polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)`
+        }}
+        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        className={cn(
+          "fixed bottom-8 left-8 z-[100] bg-white text-black shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center overflow-hidden cursor-pointer"
+        )}
+      >
+        <AnimatePresence mode="wait">
+          {!isExpanded ? (
+            <motion.div
+              key="collapsed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full h-full flex items-center justify-center"
+            >
+              <div className="flex items-center gap-1.5 h-6">
+                {[1, 2, 3].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1 bg-black rounded-sm"
-                    style={{ height: h * 4 }}
                     animate={{
-                      scaleY: [0.5, 1, 0.5, 0.8, 0.5],
+                      height: isPlaying 
+                        ? (i === 2 ? [8, 20, 12, 18, 8] : [4, 12, 8, 10, 4]) 
+                        : (i === 2 ? 8 : 4),
                     }}
                     transition={{
-                      duration: 0.6,
                       repeat: Infinity,
-                      delay: i * 0.1,
+                      duration: 0.5 + i * 0.1,
+                      ease: "easeInOut",
                     }}
+                    className="w-1 bg-black rounded-full"
                   />
                 ))}
               </div>
-              <span className="font-mono text-xs text-black tracking-wider">
-                BGM: {MUSIC_NAME}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showIcon && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed bottom-8 right-8 z-50 cursor-pointer"
-            onClick={() => {
-              if (audioRef.current) {
-                if (audioRef.current.paused) {
-                  audioRef.current.play();
-                } else {
-                  audioRef.current.pause();
-                }
-              }
-            }}
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-black">
-              <path d="M9 18V5l12-2v13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="6" cy="18" r="3" stroke="currentColor" strokeWidth="2"/>
-              <circle cx="18" cy="16" r="3" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="expanded"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center gap-5 px-10 w-full"
+            >
+              <div className="flex-initial overflow-hidden text-center">
+                {showPlayingStatus ? (
+                  <motion.div
+                    key="P2-status"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-black/40">Playing:</span>
+                    <h4 className="font-mono text-[10px] font-bold truncate tracking-tight uppercase">
+                      {currentSong.title}
+                    </h4>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="P1-controls"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <h4 className="font-mono text-[10px] font-bold truncate tracking-tight uppercase mb-1">
+                      {currentSong.title}
+                    </h4>
+                    <div className="flex items-center justify-center gap-4">
+                      <button onClick={togglePrev} className="hover:opacity-50 transition-opacity">
+                        <SkipBack size={14} fill="black" />
+                      </button>
+                      <button onClick={togglePlay} className="hover:opacity-50 transition-opacity">
+                        {isPlaying ? (
+                          <Pause size={16} fill="black" />
+                        ) : (
+                          <Play size={16} fill="black" />
+                        )}
+                      </button>
+                      <button onClick={toggleNext} className="hover:opacity-50 transition-opacity">
+                        <SkipForward size={14} fill="black" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </>
   );
 }

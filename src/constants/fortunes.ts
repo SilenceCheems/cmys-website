@@ -163,9 +163,9 @@ export const FORTUNES: Fortune[] = [
   },
   {
     "id": "23",
-    "name": "出门右转",
+    "name": "出门右随",
     "fortune": "小吉，方向",
-    "explanation": "出门后向右转，简单的动作。",
+    "explanation": "出门后向右跟随，简单的动作。",
     "description": "近期选择往往比想象中简单，顺着直觉走右侧或“右”象征的方向（如南方、领导意见）可避开麻烦。"
   },
   {
@@ -282,7 +282,7 @@ export const FORTUNES: Fortune[] = [
   },
   {
     "id": "40",
-    "name": "初梅欲谢",
+    "name": "初梅欲衰",
     "fortune": "中等凶，衰败",
     "explanation": "初春的梅花将要凋谢。",
     "description": "美好之事接近尾声，恋爱中热情减退，项目收尾阶段需防疏忽。"
@@ -300,5 +300,68 @@ export const FORTUNES: Fortune[] = [
     "fortune": "大凶，覆灭",
     "explanation": "船只沉没在水中。",
     "description": "重大失败风险，创业或考试需加倍努力，避免高风险博弈，健康防溺水。"
+  },
+  {
+    "id": "43",
+    "name": "藏谜于水",
+    "fortune": "中平，隐晦",
+    "explanation": "把谜团藏在水里。",
+    "description": "真相难寻，八卦消息不可信，重要证据或被淹没，耐心等水退。"
+  },
+  {
+    "id": "44",
+    "name": "沉默咽石",
+    "fortune": "大凶，自伤",
+    "explanation": "沉默中吞下石头。",
+    "description": "隐忍过度反伤身，胃痛或积郁成疾，建议找人倾诉或摔打枕头。"
+  },
+  {
+    "id": "45",
+    "name": "春眠叶湿",
+    "fortune": "小吉，润泽",
+    "explanation": "春天睡眠中叶子沾湿。",
+    "description": "晨起皮肤好，适合做面膜或水疗，恋爱中泪水化解矛盾。"
+  },
+  {
+    "id": "46",
+    "name": "出马应试",
+    "fortune": "大吉，功名",
+    "explanation": "骑马出阵参加考试。",
+    "description": "考试运极佳，面试、考证、竞赛易超常发挥，适合展示真才实学。"
+  },
+  {
+    "id": "47",
+    "name": "猜谜用诗",
+    "fortune": "大吉，文采",
+    "explanation": "用诗歌来猜谜。",
+    "description": "才思敏捷，互动游戏易赢，表白可用藏头诗，成功率奇高。"
+  },
+  {
+    "id":"48",
+    "name": "尘梦影逝",
+    "fortune": "中平，虚幻",
+    "explanation": "尘世之梦如影消逝。",
+    "description": "过往执念逐渐淡去，适合断舍离与心灵净化，旧照片整理后有释然感。"
+  },
+  {
+    "id": "49",
+    "name": "垂暮一世",
+    "fortune": "大凶，终结",
+    "explanation": "暮色垂落了一辈子。",
+    "description": "退休或完结感强，宜处理遗产、写遗嘱，勿开启新恋情。"
+  },
+  {
+    "id": "50",
+    "name": "炒米用砂",
+    "fortune": "小凶，硌牙",
+    "explanation": "炒米时用了沙子。",
+    "description": "吃饭咬到石子，投资遇虚假平台，口舌之福暗藏风险。"
+  },
+  {
+    "id": "51",
+    "name": "残梦印刷",
+    "fortune": "大吉，留痕",
+    "explanation": "把残破的梦印刷出来。",
+    "description": "梦境变成作品，艺术家出绘本，程序员写灵异代码成功。"
   }
 ];
