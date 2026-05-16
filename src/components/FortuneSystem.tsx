@@ -175,9 +175,9 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
     }
 
     const fortuneLevel = fortune?.fortune.split(/[，,]/)[0] || "";
-    const shareText = `我的今日运势是「${fortuneLevel} ${fortune?.name}」，来cmys.top/gacha抽取你的专属cmys运势卡`;
+    const shareText = `我的今日运势是 ${fortuneLevel}「${fortune?.name}」，来 cmys.top/gacha 抽取你的专属cmys运势卡`;
     const shareData = {
-      title: "esu! Fortune",
+      title: "CMYS esu! Fortune",
       text: shareText,
     };
 
