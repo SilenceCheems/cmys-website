@@ -1,4 +1,5 @@
 import { Contact } from "../components/Contact";
+import { BackgroundMusic } from "../components/BackgroundMusic";
 import { Fortune } from "../constants/fortunes";
 
 interface GachaPageProps {
@@ -8,9 +9,12 @@ interface GachaPageProps {
 
 export function GachaPage({ onOpenFortune, dailyFortune }: GachaPageProps) {
   return (
-    <Contact 
-      onOpenFortune={onOpenFortune} 
-      dailyFortune={dailyFortune}
-    />
+    <>
+      <BackgroundMusic disableScrollAutoplay />
+      <Contact 
+        onOpenFortune={onOpenFortune} 
+        dailyFortune={dailyFortune}
+      />
+    </>
   );
 }

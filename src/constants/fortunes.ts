@@ -363,5 +363,33 @@ export const FORTUNES: Fortune[] = [
     "fortune": "大吉，留痕",
     "explanation": "把残破的梦印刷出来。",
     "description": "梦境变成作品，艺术家出绘本，程序员写灵异代码成功。"
+  },
+   {
+    "id": "52",
+    "name": "炒墨鱼丝",
+    "fortune": "小吉，口福",
+    "explanation": "爆炒墨鱼切成细丝，鲜美脆嫩。",
+    "description": "近期适合品尝海鲜，聚会中有惊喜菜肴，财运小进，但注意过敏。"
+  },
+  {
+    "id": "53",
+    "name": "吃魔芋爽",
+    "fortune": "中平，解馋",
+    "explanation": "吃魔芋制成的辣味零食。",
+    "description": "小确幸时刻，适合放松心情，但不宜过量，注意肠胃刺激。"
+  },
+  {
+    "id": "54",
+    "name": "传媒艺术",
+    "fortune": "中平，传播",
+    "explanation": "媒体与艺术的结合。",
+    "description": "作品或观点易走红，适合短视频、广告、设计行业，流量与口碑双收。"
+  },
+  {
+    "id": "55",
+    "name": "春梦永世",
+    "fortune": "中等吉，长情",
+    "explanation": "春日美梦延续到永远。",
+    "description": "感情深厚持久，暗恋可能修成正果，已婚者重温热恋。"
   }
 ];

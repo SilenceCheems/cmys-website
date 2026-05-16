@@ -10,7 +10,11 @@ const SONGS = [
 
 const SHUTTLE_HEIGHT = 56;
 
-export function BackgroundMusic() {
+interface BackgroundMusicProps {
+  disableScrollAutoplay?: boolean;
+}
+
+export function BackgroundMusic({ disableScrollAutoplay = false }: BackgroundMusicProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -72,15 +76,17 @@ export function BackgroundMusic() {
       startPlayback();
     };
 
-    window.addEventListener("wheel", handleScroll);
-    window.addEventListener("scroll", handleScroll);
+    if (!disableScrollAutoplay) {
+      window.addEventListener("wheel", handleScroll);
+      window.addEventListener("scroll", handleScroll);
+    }
 
     return () => {
       audio.removeEventListener("canplay", handleCanPlay);
       window.removeEventListener("wheel", handleScroll);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [disableScrollAutoplay]);
 
   useEffect(() => {
     if (audioRef.current) {
