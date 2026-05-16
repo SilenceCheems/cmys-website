@@ -63,12 +63,6 @@ export function BackgroundMusic({ disableScrollAutoplay = false }: BackgroundMus
       if (!hasStarted) startPlayback();
     };
 
-    if (audio.readyState >= 3) {
-      handleCanPlay();
-    } else {
-      audio.addEventListener("canplay", handleCanPlay, { once: true });
-    }
-
     const handleScroll = () => {
       if (hasStarted) return;
       window.removeEventListener("wheel", handleScroll);
@@ -76,7 +70,14 @@ export function BackgroundMusic({ disableScrollAutoplay = false }: BackgroundMus
       startPlayback();
     };
 
+    // 只有在允许滚动自动播放时才添加这些自动触发逻辑
     if (!disableScrollAutoplay) {
+      if (audio.readyState >= 3) {
+        handleCanPlay();
+      } else {
+        audio.addEventListener("canplay", handleCanPlay, { once: true });
+      }
+
       window.addEventListener("wheel", handleScroll);
       window.addEventListener("scroll", handleScroll);
     }
