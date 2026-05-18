@@ -10,6 +10,7 @@ interface FortuneSystemProps {
   isOpen: boolean;
   onClose: () => void;
   onDailyFortuneSet: (fortune: Fortune | null) => void;
+  forceGenerate?: number;
 }
 
 const STORAGE_KEY = "esu_fortune_daily";
@@ -79,7 +80,7 @@ function generateUniqueId(fortuneId: string): string {
   return `${randomPart}${fortuneId.padStart(4, '0')}`;
 }
 
-export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSystemProps) {
+export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet, forceGenerate = -1 }: FortuneSystemProps) {
   const [stage, setStage] = useState<AnimationStage>("idle");
   const [fortune, setFortune] = useState<Fortune | null>(null);
   const [displayId, setDisplayId] = useState<string>("");
@@ -103,7 +104,11 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
       return;
     }
 
-    targetFortune = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    if (forceGenerate !== -1) {
+      targetFortune = FORTUNES.find((f) => f.id === String(forceGenerate)) || FORTUNES[0];
+    } else {
+      targetFortune = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    }
     finalUniqueId = generateUniqueId(targetFortune.id);
     saveDailyFortune(targetFortune.id, finalUniqueId);
 
@@ -120,7 +125,7 @@ export function FortuneSystem({ isOpen, onClose, onDailyFortuneSet }: FortuneSys
     
     // Update global state only after animation completes
     onDailyFortuneSet(targetFortune);
-  }, [onDailyFortuneSet]);
+  }, [onDailyFortuneSet, forceGenerate]);
 
   useEffect(() => {
     if (isOpen) {
@@ -345,6 +350,119 @@ function DrawingPhase() {
   );
 }
 
+function StructuralFireworks() {
+  const primaryParticles = Array.from({ length: 20 });
+  const secondaryParticles = Array.from({ length: 16 });
+  const tertiaryParticles = Array.from({ length: 12 });
+  
+  return (
+    <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
+      {primaryParticles.map((_, i) => {
+        const angle = (i * 360) / primaryParticles.length + (i % 2 === 0 ? 9 : 0);
+        const radian = (angle * Math.PI) / 180;
+        const distance = 140 + (i % 3) * 40;
+        
+        return (
+          <motion.div
+            key={`primary-${i}`}
+            initial={{ 
+              x: 0, 
+              y: 0, 
+              opacity: 0, 
+              scale: 0
+            }}
+            animate={{ 
+              x: Math.cos(radian) * distance, 
+              y: Math.sin(radian) * distance, 
+              opacity: [0, 1, 1, 0],
+              scale: [0, 1, 0.3],
+            }}
+            transition={{ 
+              duration: 1.8, 
+              ease: [0.19, 1, 0.22, 1],
+              delay: 0.1 + (i % 4) * 0.05
+            }}
+            className="absolute"
+          >
+            {i % 2 === 0 ? (
+              <div className="w-14 h-[1px] bg-white origin-left" />
+            ) : (
+              <div className="w-2.5 h-2.5 border border-white rotate-45" />
+            )}
+          </motion.div>
+        );
+      })}
+      
+      {secondaryParticles.map((_, i) => {
+        const angle = (i * 360) / secondaryParticles.length + 11.25;
+        const radian = (angle * Math.PI) / 180;
+        const distance = 90 + (i % 3) * 30;
+        
+        return (
+          <motion.div
+            key={`secondary-${i}`}
+            initial={{ 
+              x: 0, 
+              y: 0, 
+              opacity: 0, 
+              scale: 0
+            }}
+            animate={{ 
+              x: Math.cos(radian) * distance, 
+              y: Math.sin(radian) * distance, 
+              opacity: [0, 1, 0.5, 0],
+              scale: [0, 1, 0],
+              rotate: 90
+            }}
+            transition={{ 
+              duration: 1.4, 
+              ease: "easeOut",
+              delay: 0.25 + (i % 3) * 0.04
+            }}
+            className="absolute"
+          >
+            <div className="w-3 h-3 bg-white"
+              style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+            />
+          </motion.div>
+        );
+      })}
+
+      {tertiaryParticles.map((_, i) => {
+        const angle = (i * 360) / tertiaryParticles.length;
+        const radian = (angle * Math.PI) / 180;
+        const distance = 200 + (i % 4) * 25;
+        
+        return (
+          <motion.div
+            key={`tertiary-${i}`}
+            initial={{ 
+              x: 0, 
+              y: 0, 
+              opacity: 0, 
+              scale: 0
+            }}
+            animate={{ 
+              x: Math.cos(radian) * distance, 
+              y: Math.sin(radian) * distance, 
+              opacity: [0, 1, 0.3, 0],
+              scale: [0, 0.8, 0],
+            }}
+            transition={{ 
+              duration: 2.2, 
+              ease: [0.16, 1, 0.3, 1],
+              delay: 0.15 + i * 0.03
+            }}
+            className="absolute"
+          >
+            <div className="w-1 h-6 bg-white origin-bottom" />
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 import { forwardRef } from "react";
 
 const CardPhase = forwardRef<HTMLDivElement, { stage: AnimationStage; fortune: Fortune | null; displayId: string }>(
@@ -397,6 +515,11 @@ const CardPhase = forwardRef<HTMLDivElement, { stage: AnimationStage; fortune: F
           )}
         </AnimatePresence>
 
+        {/* Structural Fireworks for Fortune 0 */}
+        {stage === "settled" && fortune.id === "0" && (
+          <StructuralFireworks />
+        )}
+
         {/* Content Container (Stable layout) */}
         <div className="absolute inset-0 w-[420px] left-1/2 -translate-x-1/2 h-full pointer-events-none">
           <div className="relative z-10 h-full w-full p-10 flex flex-col justify-between text-[#F0F0F0] pointer-events-auto">
@@ -422,7 +545,7 @@ const CardPhase = forwardRef<HTMLDivElement, { stage: AnimationStage; fortune: F
                 <motion.h3 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="font-serif text-5xl tracking-tighter"
+                  className="font-serif text-5xl tracking-tighter leading-none"
                 >
                   {fortune.name}
                 </motion.h3>
@@ -435,20 +558,26 @@ const CardPhase = forwardRef<HTMLDivElement, { stage: AnimationStage; fortune: F
               </div>
             </div>
 
-            {/* Center Illustration Plot (One-Line Sprout) */}
-            <div className="flex-grow flex items-center justify-center p-8">
-               <svg viewBox="0 0 100 100" className="w-48 h-48 stroke-primary/60 fill-none stroke-[0.75]" style={{ filter: "drop-shadow(0 0 8px rgba(var(--color-primary-rgb), 0.3))" }}>
-                  <AnimatePresence>
-                    {stage === "settled" && (
-                      <motion.path
-                        d="M50,90 Q50,60 50,30 M50,60 Q30,40 10,50 M50,60 Q70,40 90,50 M50,45 Q40,20 50,5 Q60,20 50,45"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 2.5, ease: "easeInOut" }}
-                      />
-                    )}
-                  </AnimatePresence>
-               </svg>
+            {/* Center Illustration (Image) */}
+            <div className="flex-grow flex items-center justify-center p-8 relative">
+               {/* Decoration Lines */}
+               <div className="absolute top-0 left-0 w-8 h-8 border-l border-t border-white/80" />
+               <div className="absolute bottom-0 right-0 w-8 h-8 border-r border-b border-white/80" />
+               
+               {fortune.id === "0" ? (
+                 <img 
+                   src={`/cards/${fortune.id}.png`}
+                   alt={fortune.name}
+                   className="max-w-full max-h-full object-contain"
+                   style={{ filter: "drop-shadow(0 0 8px rgba(var(--color-primary-rgb), 0.3))" }}
+                 />
+               ) : (
+                 <svg 
+                   className="w-full h-full max-w-[200px] max-h-[200px]"
+                   viewBox="0 0 100 100"
+                   style={{ filter: "drop-shadow(0 0 8px rgba(var(--color-primary-rgb), 0.3))" }}
+                 />
+               )}
             </div>
 
             <div className="flex flex-col gap-6">

@@ -8,6 +8,13 @@ export interface Fortune {
 
 export const FORTUNES: Fortune[] = [
   {
+    id: "0",
+    name: "陈孟钰爽",
+    fortune: "姬吉",
+    explanation: "无",
+    description: "无",
+  },
+  {
     id: "1",
     name: "沉默有诗",
     fortune: "中等吉，文运",

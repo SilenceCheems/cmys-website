@@ -67,7 +67,7 @@ export function Contact({ onOpenFortune, dailyFortune }: ContactProps) {
         <p className="text-secondary font-mono text-xs uppercase tracking-widest mt-4">
           {hasDrawnToday 
             ? `今日运势: ${dailyFortune?.name || "已抽取"}`
-            : "Click to draw your fortune"
+            : "今天是幸运日"
           }
         </p>
       </motion.div>
