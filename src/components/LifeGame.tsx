@@ -1,8 +1,13 @@
 // src/components/LifeGame.tsx
-import { useReducer, createContext, useContext, type Dispatch } from "react";
-import type { GameState, GameAction, GamePhase } from "../engine/types";
+import { useReducer, createContext, useContext, useEffect, type Dispatch } from "react";
+import type { GameState, GameAction } from "../engine/types";
 import { createInitialState, gameReducer } from "../engine/reducer";
-import { checkDeath } from "../engine/death";
+import { saveGame, hasSave, loadGame } from "../engine/autosave";
+import { LifeTalentPicker } from "./LifeTalentPicker";
+import { LifeInfancyStage } from "./LifeInfancyStage";
+import { LifeYouthStage } from "./LifeYouthStage";
+import { LifeMidlifeStage } from "./LifeMidlifeStage";
+import { LifeDeathScreen } from "./LifeDeathScreen";
 
 interface LifeContextValue {
   state: GameState;
@@ -18,7 +23,16 @@ export function useLife() {
 }
 
 export function LifeGame() {
-  const [state, dispatch] = useReducer(gameReducer, null, () => createInitialState());
+  const [state, dispatch] = useReducer(
+    gameReducer,
+    null,
+    () => hasSave() ? loadGame()! : createInitialState(),
+  );
+
+  // 年龄段切换时自动保存
+  useEffect(() => {
+    saveGame(state);
+  }, [state.age]);
 
   const ctx: LifeContextValue = { state, dispatch };
 
@@ -27,34 +41,26 @@ export function LifeGame() {
 
     switch (phase.type) {
       case "talent_selection":
-        return (
-          <div className="flex items-center justify-center h-full">
-            <p className="font-mono text-sm text-secondary">天赋选择 (第 {phase.round + 1} 轮)</p>
-          </div>
-        );
+        return <LifeTalentPicker />;
 
-      case "playing":
-        return (
-          <div className="flex flex-col items-center justify-center gap-8 h-full">
-            <div className="text-center">
-              <p className="font-serif text-8xl tracking-tighter">{state.age}</p>
-              <p className="font-mono text-xs text-secondary mt-2">岁</p>
-            </div>
-            <div className="grid grid-cols-3 gap-2 font-mono text-xs">
-              {Object.entries(state.attributes).map(([key, val]) => (
-                <div key={key} className="px-3 py-1 border border-primary/20">
-                  {key}: {val as number}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => dispatch({ type: "ADVANCE_AGE" })}
-              className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase hover:bg-primary hover:text-canvas transition-colors"
-            >
-              推进年龄
-            </button>
-          </div>
-        );
+      case "playing": {
+        const { age } = state;
+        const { currentEvent, pendingChoices } = state;
+
+        // 按年龄段路由到不同组件
+        if (age <= 5) return <LifeInfancyStage />;
+        if (age <= 30) {
+          if (currentEvent && pendingChoices) {
+            return (
+              <LifeYouthStage />
+            );
+          }
+          return <LifeYouthStage />;
+        }
+        if (age <= 60) return <LifeMidlifeStage />;
+        // 晚年期暂时复用 youth stage
+        return <LifeYouthStage />;
+      }
 
       case "dying":
         return (
@@ -71,18 +77,7 @@ export function LifeGame() {
         );
 
       case "result":
-        return (
-          <div className="flex flex-col items-center justify-center gap-6">
-            <p className="font-serif text-4xl tracking-tighter">人生回顾</p>
-            <p className="font-mono text-sm text-secondary">终年 {state.age} 岁</p>
-            <button
-              onClick={() => dispatch({ type: "RESTART" })}
-              className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase"
-            >
-              重新开始
-            </button>
-          </div>
-        );
+        return <LifeDeathScreen />;
 
       default:
         return null;
@@ -92,7 +87,6 @@ export function LifeGame() {
   return (
     <LifeContext.Provider value={ctx}>
       <div className="relative min-h-screen bg-canvas text-primary font-sans">
-        {/* 背景网格 */}
         <div
           className="absolute inset-0 pointer-events-none opacity-10"
           style={{

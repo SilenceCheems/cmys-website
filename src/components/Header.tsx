@@ -18,6 +18,7 @@ export function Header() {
     { name: "驰鸣羽势", section: "growth", type: "anchor" },
     { name: "诚盟远溯", section: "now", type: "anchor" },
     { name: "聪明一世", path: "/gacha", type: "route" },
+    { name: "沉默一生", path: "/life", type: "route" },
   ];
 
   const handleNavClick = (link: any) => {

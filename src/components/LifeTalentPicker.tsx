@@ -1,0 +1,96 @@
+// src/components/LifeTalentPicker.tsx
+import { useState } from "react";
+import { useLife } from "./LifeGame";
+import type { Talent } from "../engine/types";
+import { TALENT_POOL } from "../data/life/talents";
+import { selectTalentsForRound, applyTalentToAttributes } from "../engine/talent";
+import { motion } from "motion/react";
+
+export function LifeTalentPicker() {
+  const { state, dispatch } = useLife();
+  const round = (state.phase as { type: "talent_selection"; round: number }).round;
+  const [selected, setSelected] = useState<Talent[]>([]);
+
+  const candidates = selectTalentsForRound(
+    TALENT_POOL,
+    state.talents.map((t) => t.id),
+    round
+  );
+
+  const handleSelect = (talent: Talent) => {
+    const newSelected = [...selected, talent];
+    setSelected(newSelected);
+
+    const newTalents = [...state.talents, talent];
+    const newAttrs = applyTalentToAttributes(state.attributes, talent);
+
+    if (round >= 2) {
+      // 最后一轮，开始游戏
+      dispatch({
+        type: "LOAD_SAVE",
+        state: {
+          ...state,
+          talents: newTalents,
+          attributes: newAttrs,
+          phase: { type: "playing", step: "aging" },
+          age: 0 as import("../engine/types").Age,
+        },
+      });
+    } else {
+      dispatch({
+        type: "LOAD_SAVE",
+        state: {
+          ...state,
+          talents: newTalents,
+          attributes: newAttrs,
+          phase: { type: "talent_selection", round: round + 1 },
+        },
+      });
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="font-serif text-3xl tracking-tighter"
+      >
+        选择你的天赋
+      </motion.h2>
+      <p className="font-mono text-xs text-secondary">
+        第 {round + 1} / 3 轮
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+        {candidates.map((talent, i) => (
+          <motion.button
+            key={talent.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            onClick={() => handleSelect(talent)}
+            className="group relative p-6 border border-primary/20 text-left hover:border-primary/60 transition-colors glass-panel"
+          >
+            <h3 className="font-mono text-sm tracking-wider mb-2">{talent.name}</h3>
+            <p className="font-mono text-[10px] text-secondary leading-relaxed mb-3">
+              {talent.description}
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {Object.entries(talent.positive).map(([k, v]) => (
+                <span key={k} className="text-[10px] font-mono text-green-700 px-1">
+                  {k}+{v}
+                </span>
+              ))}
+              {Object.entries(talent.negative).map(([k, v]) => (
+                <span key={k} className="text-[10px] font-mono text-red-700 px-1">
+                  {k}{v}
+                </span>
+              ))}
+            </div>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
