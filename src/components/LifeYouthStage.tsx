@@ -1,0 +1,36 @@
+// src/components/LifeYouthStage.tsx
+import { useLife } from "./LifeGame";
+import { LifeEventCard } from "./LifeEventCard";
+import { LifeStatsBars } from "./LifeStatsBars";
+
+export function LifeYouthStage() {
+  const { state, dispatch } = useLife();
+  const { currentEvent, pendingChoices, age } = state;
+
+  if (currentEvent && pendingChoices) {
+    return (
+      <LifeEventCard
+        event={currentEvent}
+        choices={pendingChoices}
+        age={age}
+        onChoose={(i) => dispatch({ type: "RESOLVE_EVENT", choiceIndex: i })}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-8">
+      <div className="text-center">
+        <p className="font-serif text-8xl tracking-tighter">{age}</p>
+        <p className="font-mono text-xs text-secondary mt-2">岁</p>
+      </div>
+      <LifeStatsBars attributes={state.attributes} />
+      <button
+        onClick={() => dispatch({ type: "ADVANCE_AGE" })}
+        className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase hover:bg-primary hover:text-canvas transition-colors"
+      >
+        继续
+      </button>
+    </div>
+  );
+}
