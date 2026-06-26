@@ -1,26 +1,14 @@
 // src/components/LifeGame.tsx
-import { useReducer, createContext, useContext, useEffect, type Dispatch } from "react";
-import type { GameState, GameAction } from "../engine/types";
+import { useReducer, useEffect } from "react";
+import type { GameAction } from "../engine/types";
 import { createInitialState, gameReducer } from "../engine/reducer";
 import { saveGame, hasSave, loadGame } from "../engine/autosave";
+import { LifeContext, type LifeContextValue } from "./LifeContext";
 import { LifeTalentPicker } from "./LifeTalentPicker";
 import { LifeInfancyStage } from "./LifeInfancyStage";
 import { LifeYouthStage } from "./LifeYouthStage";
 import { LifeMidlifeStage } from "./LifeMidlifeStage";
 import { LifeDeathScreen } from "./LifeDeathScreen";
-
-interface LifeContextValue {
-  state: GameState;
-  dispatch: Dispatch<GameAction>;
-}
-
-export const LifeContext = createContext<LifeContextValue | null>(null);
-
-export function useLife() {
-  const ctx = useContext(LifeContext);
-  if (!ctx) throw new Error("useLife must be used within LifeGame");
-  return ctx;
-}
 
 export function LifeGame() {
   const [state, dispatch] = useReducer(

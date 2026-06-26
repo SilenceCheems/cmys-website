@@ -1,6 +1,6 @@
 // src/components/LifeDeathScreen.tsx
 import { motion } from "motion/react";
-import { useLife } from "./LifeGame";
+import { useLife } from "./LifeContext";
 import { computeResult } from "../engine/ending";
 import { ENDING_FLAVOR_TEXTS } from "../data/life/endings";
 

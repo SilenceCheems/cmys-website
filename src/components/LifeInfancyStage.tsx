@@ -1,7 +1,7 @@
 // src/components/LifeInfancyStage.tsx
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useLife } from "./LifeGame";
+import { useLife } from "./LifeContext";
 import { ANCHOR_EVENTS } from "../data/life/events-anchors";
 
 export function LifeInfancyStage() {

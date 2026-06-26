@@ -1,6 +1,6 @@
 // src/components/LifeTalentPicker.tsx
 import { useState } from "react";
-import { useLife } from "./LifeGame";
+import { useLife } from "./LifeContext";
 import type { Talent } from "../engine/types";
 import { TALENT_POOL } from "../data/life/talents";
 import { selectTalentsForRound, applyTalentToAttributes } from "../engine/talent";

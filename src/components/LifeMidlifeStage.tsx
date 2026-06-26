@@ -1,5 +1,5 @@
 // src/components/LifeMidlifeStage.tsx
-import { useLife } from "./LifeGame";
+import { useLife } from "./LifeContext";
 import { LifeEventCard } from "./LifeEventCard";
 import { LifeStatsBars } from "./LifeStatsBars";
 import { motion } from "motion/react";
