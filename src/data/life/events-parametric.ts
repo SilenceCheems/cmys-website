@@ -645,4 +645,221 @@ export const PARAMETRIC_EVENTS: ParametricEvent[] = [
       { text: "坦然面对", effects: { attributes: {}, isLethal: false } },
     ],
   },
+
+  // ══ 新增：少年期即死事件 6-17 ══
+  {
+    type: "parametric", id: "p_kid_ice", title: "踩没银霜",
+    description: "冬天湖面结了一层薄冰。伙伴们在冰面上嬉戏打闹，喊着你的名字让你也下来。冰面发出咯吱咯吱的声响。",
+    minAge: createAge(8), maxAge: createAge(13), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "跑到冰面上加入他们", effects: { attributes: {}, isLethal: true }, resultText: "冰面在我脚下裂开，刺骨的湖水瞬间吞没了我。最后的记忆是同伴们变了调的尖叫声——然后世界沉入了黑暗。" },
+      { text: "在岸边看着就好", effects: { attributes: { intelligence: 2, physique: 1 } }, resultText: "我在岸边找了块石头坐下，看着他们在冰面上追逐打闹。冰面确实在响——我皱了皱眉。后来听说安全员来把人赶走了，还好没出事。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_kid_well", title: "沉没影深",
+    description: "村口有一口废多年的枯井，井口被木板盖着。你和小伙伴打赌谁能把井盖掀开。大家都看着你，等着你动手。",
+    minAge: createAge(7), maxAge: createAge(11), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "用力掀开井盖", effects: { attributes: {}, isLethal: true }, resultText: "木板腐朽得厉害，我一使劲就碎了。重心不稳，脚下一滑——世界在我眼前翻转坠落，最后一眼是头顶越来越小的圆形天空。" },
+      { text: "算了，太危险了", effects: { attributes: { intelligence: 2, luck: 1 } }, resultText: "我蹲在井边听了听——什么声音也没有。但我总觉得这井不该碰。我站起身拍拍裤子：'别玩了，我妈叫我回家吃饭。'多年后听说那口井被填了。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_kid_roof", title: "策没云深",
+    description: "你想爬上邻居家的房顶放风筝。瓦片被晒得滚烫，你赤着脚踩上去，有一种说不出的兴奋。更高处的风景，总是让人着迷。",
+    minAge: createAge(10), maxAge: createAge(14), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "踮脚够更高的屋檐", effects: { attributes: {}, isLethal: true }, resultText: "我踮起脚尖去够更高的屋檐，指尖刚碰到檐角的瞬间瓦片松动了。身体失去平衡向后仰去——天空在旋转，瓦片在坠落，我听到的最后声音是风筝线轴砸在地上的闷响。" },
+      { text: "坐下来慢慢放风筝", effects: { attributes: { creativity: 3, luck: 1 } }, resultText: "我坐在屋脊上，风吹着风筝越飞越高。这角度真好——整个村子都在脚下，远山在夕阳里像一幅水墨画。我觉得自己像一个坐在世界屋顶上的国王。" },
+    ],
+  },
+
+  // ══ 新增：青年期即死事件 18-30 ══
+  {
+    type: "parametric", id: "p_young_motor", title: "驰没远山",
+    description: "朋友新买了摩托车，说带你去兜风。引擎轰鸣声中，他把头盔递给你：'上来吧，带你感受一下什么叫自由。'车速表已经指向了 120。",
+    minAge: createAge(19), maxAge: createAge(25), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "戴上头盔上车", effects: { attributes: {}, isLethal: true }, resultText: "风在耳边尖叫，路灯的光连成一条线。弯道来得太急——我甚至没来得及喊出声。摩托车撞上了护栏，世界在金属与火花的交响中戛然而止。" },
+      { text: "摆手拒绝，太危险了", effects: { attributes: { intelligence: 2, physique: 1 } }, resultText: "我接过头盔看了看——上面有划痕。我把头盔还给他：'下次吧，我今天还有事。'后来听说他出了车祸。我摸了摸自己的脑袋，还在。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_blood", title: "持命应生",
+    description: "你连续加班一周后开始咳血。凌晨三点的医院走廊空无一人，你满嘴铁锈味，手里捏着一张写着'CT平扫'的单子。医生说可能是肺炎、也可能是肺结核——也可能是更糟的东西。",
+    minAge: createAge(20), maxAge: createAge(28), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { physique: 3 },
+    choices: [
+      { text: "吃抗生素硬撑，项目不能断", effects: { attributes: {}, isLethal: true }, resultText: "我把药往嘴里一塞，继续赶那份明天要交的PPT。第三天同事发现我倒在办公桌前——呼吸已经停了。医生说年轻人心肺衰竭的原因很简单：对命运的透支，超过了生命的限额。" },
+      { text: "请假住院彻底治疗", effects: { attributes: { physique: -2, wealth: -1, luck: 3 } }, resultText: "我请了两周病假，每天输液、吃药、看窗外那棵树从枯枝长到发芽。出院时我用沙哑的声音对医生说谢谢。命只有一条——这个道理，咳了血才真正学到。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_river", title: "春末夜深",
+    description: "有人在河边喊救命。河水很急，那个身影在水中挣扎。你环顾四周——附近没有别人。",
+    minAge: createAge(20), maxAge: createAge(28), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "跳下去救人", effects: { attributes: {}, isLethal: true }, resultText: "我蹬掉鞋子跳了进去。水太冷了，瞬间吸走了所有力气。我抓到那个人的衣角，但暗流把我们两个一起拖了下去。救命声渐渐消失了，河水恢复了平静。" },
+      { text: "跑去找竹竿和绳索", effects: { attributes: { intelligence: 2, luck: 2, appearance: 2 } }, resultText: "我没有慌。冲到旁边的工棚找到一根长竹竿和绳索，跑回来的时候那人已经快沉下去了。我趴在岸边把竹竿伸过去——他抓住了。两个人在岸边喘了很久，然后都笑了。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_drugs", title: "沉眠欲碎",
+    description: "酒吧里，一个陌生人递过来一粒药丸：'试试这个，比喝酒有意思多了。'灯光闪烁中，你看不清他的表情。周围的人都在看着你——'怂了？'",
+    minAge: createAge(18), maxAge: createAge(25), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "一口吞下那粒药丸", effects: { attributes: {}, isLethal: true }, resultText: "药丸卡在嗓子眼——然后一股热流冲进脑子。有人在喊叫，有人在呕吐。我的身体像被扔进搅拌机——然后意识溶解了。法医后来说是劣质毒品导致的心脏骤停。" },
+      { text: "把药丸扔进垃圾桶", effects: { attributes: { intelligence: 2, luck: 2 } }, resultText: "我捏着那粒药丸，在所有人的注视下把它丢进垃圾桶。有人说我没种，我转过身直视他的眼睛：'你说的对。'那晚我走回家的时候，街道安静极了——我第一次觉得这种安静是我自己捡回来的。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_gamble", title: "赤没银山",
+    description: "有人拉你去地下赌场。前几把你赢了小钱，带你来的人拍着你的肩膀：'今晚是你的幸运夜！'他示意你下一把大的——把全部身家押上。",
+    minAge: createAge(22), maxAge: createAge(30), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { wealth: 4 },
+    choices: [
+      { text: "一把梭哈，赢了翻身", effects: { attributes: { wealth: -30, luck: -5 }, isLethal: false }, resultText: "我推上所有筹码。开牌的瞬间我闭了一下眼——不是赢。走出赌场的时候口袋空了，连坐公交的硬币都没剩下。走了两小时回家，一路上都在想那个笑吟吟的荷官。他不是在祝福我，是在等我跳下去。" },
+      { text: "见好就收，拿钱走人", effects: { attributes: { wealth: 2, intelligence: 2 } }, resultText: "我把赢来的零钱装进口袋，起身就走。'再坐一会儿嘛'——我摆摆手，头也不回。外面的冷风吹在脸上，我摸了摸兜里的钞票。今晚赢了，但真正的赢是知道什么时候该走。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_hike", title: "赤没雨深",
+    description: "独自徒步时你偏离了主路，走进了一片未曾走过的峡谷。GPS没有信号，天色渐暗，干粮只剩半块压缩饼干。两条路：继续往前找出口，或者原路返回——但原路要经过一片夜间可能有野兽的树林。",
+    minAge: createAge(20), maxAge: createAge(27), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { physique: 4 },
+    choices: [
+      { text: "继续往前走，赌一把", effects: { attributes: {}, isLethal: true }, resultText: "我沿着峡谷越走越窄，最后走到了悬崖边缘。试着往下爬——岩石在手心滑脱，我坠入了黑暗中。三天后搜救队在谷底找到了我。那个峡谷，当地人叫它'回不来'。" },
+      { text: "原路返回，保持谨慎", effects: { attributes: { intelligence: 2, physique: 1, luck: 2 } }, resultText: "我咬咬牙转身往回走。穿过那片树林时远处有动物在叫，我攥紧登山杖走得很快。到主路时天已全黑，手电筒的光打在前方路面上——安全了。冒险很酷，但活着回来更酷。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_lightning", title: "沉明雨势",
+    description: "暴雨如注，你骑车经过一片空旷的农田。天空被紫光撕裂，雷声越来越近。你看见前方有个公交站亭——但那只有铁皮顶棚，可能更招雷。",
+    minAge: createAge(19), maxAge: createAge(26), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "冲向公交站亭躲雨", effects: { attributes: {}, isLethal: true }, resultText: "雷击在一瞬间。有人说被雷电击中的人会先听到一声巨大的蜂鸣——然后世界从彩色退成了黑白。我的自行车倒在路中间，车轮还在转。" },
+      { text: "趴在路边的低洼处", effects: { attributes: { physique: -1, intelligence: 2 } }, resultText: "我跳下自行车，趴在路边排水沟的泥水里。雷声在头顶炸裂——那道闪电击中了我刚才骑车的位置。泥水浸透了衣服，冷得发抖，但我活着。在泥里打了个滚爬起来，笑着继续骑。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_young_tide", title: "潮没影深",
+    description: "退潮时你走过沙滩去对面的礁石岛赶海。玩得太投入没注意涨潮的速度。当你抬起头——来时的路已经被淹没了半米深，潮水还在涨。",
+    minAge: createAge(20), maxAge: createAge(27), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "趁着还没淹太高，赶紧游回去", effects: { attributes: {}, isLethal: true }, resultText: "我跳进水里，冰冷的海水让我倒吸一口气。游到一半时一个浪头打过来——方向感全乱了。海岸线在眼前摇晃，然后下沉、消失。我被暗流拖进了深水区。" },
+      { text: "爬上礁石高处呼救", effects: { attributes: { luck: 2, physique: 1 } }, resultText: "我手脚并用地爬上最高的那块礁石，掏出手机——还有一格信号。救援快艇二十分钟后到了，开船的大叔一边抛救生圈一边骂我不看潮汐表。我缩在船尾裹着毯子，冷，但活着。" },
+    ],
+  },
+
+  // ══ 新增：壮年期即死事件 31-60 ══
+  {
+    type: "parametric", id: "p_mid_alcohol", title: "愁漫永逝",
+    description: "多年的应酬让你有了酗酒的习惯。体检报告上的肝功能指标已经标红了好几年。今晚又是一场推不掉的酒局。客户把酒杯推到你面前：'感情深，一口闷。'",
+    minAge: createAge(40), maxAge: createAge(55), weight: 2, maxTriggers: 2, cooldownYears: 10,
+    choices: [
+      { text: "仰头干完，不给面子不行", effects: { attributes: { physique: -15, wealth: 3 }, isLethal: false }, resultText: "白酒烧进胃里的那一瞬间，我就知道今晚要出事。凌晨三点腹痛难忍进了急诊——急性胰腺炎。医生说我再喝就要在ICU过年了。回家后我把酒柜清空了，这辈子再没碰过一口。" },
+      { text: "放下酒杯，换茶", effects: { attributes: { physique: 3, luck: 1, wealth: -1 } }, resultText: "我端起茶杯：'以茶代酒。'客户愣了一下，然后笑了：'行行行，现在不兴灌酒了。'散场后我一个人站在饭店门口，冬天的冷风吹在脸上——原来戒酒不需要勇气，只需要一个开口的瞬间。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_fight", title: "赤没夜深",
+    description: "深夜在小巷里迎面走来两个醉汉。其中一个人撞了你一下，然后骂骂咧咧地把手伸向腰间。你看到了一道金属的反光。",
+    minAge: createAge(32), maxAge: createAge(48), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "冲上去夺刀，不能怂", effects: { attributes: {}, isLethal: true }, resultText: "我冲向那个拿刀的人，抓住了他的手腕。但我低估了他的力量——刀尖转了一个角度刺进了我的左胸。警察后来调取了监控。同事们在公司群里沉默了很久，有人说我不值——人到中年，为了一口气把命搭上，真的不值。" },
+      { text: "转身就跑，报警处理", effects: { attributes: { intelligence: 2, luck: 1, wealth: -1 } }, resultText: "我转身就跑——不是怂，是活够了才懂得命比面子贵。跑出巷子马上掏出手机报了警。几天后派出所在例行巡逻中抓到了那两人。我把那晚的经历讲给儿子听，当安全教育。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_bloodpressure", title: "沉默已逝",
+    description: "早上醒来右臂抬不起来了。医生看着你的血压计读数，倒吸了一口凉气：'你这么高的血压还扛着？随时可能脑出血。'你苦笑着说还有两个会要开。",
+    minAge: createAge(45), maxAge: createAge(58), weight: 2, maxTriggers: 2, cooldownYears: 10,
+    statRequirements: { physique: 4 },
+    choices: [
+      { text: "先开会，事后再看", effects: { attributes: {}, isLethal: true }, resultText: "我在会议室里讲话讲到一半，突然右边的视野开始变暗。同事们说我站了一会儿，然后像一棵被砍倒的树一样直直地倒下去。脑干出血——医生说走得不痛苦。只是太快了，太早了。" },
+      { text: "马上住院，什么会都不开了", effects: { attributes: { physique: -3, luck: 3, wealth: -2 } }, resultText: "我拨了三个电话：取消今天的两个会、给妻子发了一条消息、然后叫了 120。躺在救护车里看着输液瓶的药水一滴滴落下，鼻子一酸——这条命，差一点就被会议室里的 PPT 带走了。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_debt", title: "沉脉已碎",
+    description: "你投资了一个'稳赚'的项目，为此抵押了房子、借了高利贷。现在是还款日——电话响个不停，窗外催债的人已经把车停在了楼下。一个朋友说他有路子可以翻盘——但需要你做一件违法的事。",
+    minAge: createAge(38), maxAge: createAge(52), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { wealth: 5 },
+    choices: [
+      { text: "铤而走险，走朋友的'路子'", effects: { attributes: {}, isLethal: true }, resultText: "我在看守所里睡了最后一个晚上。有人说是'经济犯罪'，但对我来说这些词都太遥远了——我只是想让家人过得更好，结果连陪伴他们的权利都输掉了。铁门合上的声音，比所有讨债的电话都更响。" },
+      { text: "卖掉一切，从头还债", effects: { attributes: { wealth: -15, intelligence: 3, luck: 2 } }, resultText: "我签了卖房合同，交出了车钥匙。搬进出租屋那天妻子哭了，我说'别哭，人还在呢'。之后的五年我白天上班晚上跑滴滴，一分一分地还。还清最后一笔债的时候我站在银行门口，感觉像刚出狱一样——自由了。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_overwork", title: "沉眠永世",
+    description: "你已经连续两周每天只睡四个小时。镜子里那个眼窝深陷的男人有些陌生。太阳穴突突地跳着，左臂隐隐发麻。同事劝你回去休息——'还有一个报表，做完就走。'你打开抽屉又吞了两片咖啡因片。",
+    minAge: createAge(35), maxAge: createAge(50), weight: 3, maxTriggers: 2, cooldownYears: 12,
+    statRequirements: { physique: 3, wealth: 4 },
+    choices: [
+      { text: "继续熬夜，做完这个项目", effects: { attributes: {}, isLethal: true }, resultText: "心肺功能在凌晨四点彻底罢工。他趴在键盘上，屏幕上还有没写完的最后一行数据。医生说这在医学上叫做'青壮年猝死综合征'——在媒体上它有一个更简单的名字：过劳死。他最后发的消息是一天前，对妻子说：'今晚加班，不用等我。'" },
+      { text: "关机回家睡觉", effects: { attributes: { physique: 4, luck: 2, wealth: -1 } }, resultText: "我长按电源键把电脑关了——屏幕黑掉的那一刻，心里某根绷紧的弦也跟着松了。在家昏睡了十二个小时后醒来，看到同事凌晨三点发的消息：'你还好吗？'窗外阳光正好，我还活着。有些班不值得透支命来加。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_cancer", title: "残命疑生",
+    description: "体检报告放在桌上。你盯着那行字看了很久——'肺部占位性病变，建议进一步检查'。医生说你有一周的时间考虑治疗方案：激进手术还是保守治疗。",
+    minAge: createAge(48), maxAge: createAge(58), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { physique: 4 },
+    choices: [
+      { text: "拖延，先用偏方试试", effects: { attributes: {}, isLethal: true }, resultText: "我听了那个'老中医'的偏方，喝了两个月草药汤。复查的时候已经扩散了。医生叹了口气——如果能早一个月来，还有手术的机会。我走出诊室的时候腿在发抖。不是害怕死，是后悔当时没有给自己一个活的机会。" },
+      { text: "立即安排手术", effects: { attributes: { physique: -10, luck: 3, wealth: -3 } }, resultText: "手术安排在两天后。被推进手术室时我握着妻子的手说'等我'。六个小时后主刀医生给了我一个OK的手势——切干净了。胸口的伤疤很难看，但每一次看见它我就知道：我还在。疤痕是生命给的勋章。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_betrayal", title: "赤没应生",
+    description: "合伙人带着核心客户和资金消失了，留下一屁股烂账。供应商堵在公司门口要钱。此时你只有一个选择——报警立案。但你查到他在此之前已经买好了出国的机票，今天下午飞。",
+    minAge: createAge(40), maxAge: createAge(55), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { wealth: 5 },
+    choices: [
+      { text: "独自去机场拦住他", effects: { attributes: {}, isLethal: true }, resultText: "我在机场航站楼追到了他——他正在过安检。我冲上去揪住他的衣领，两个保安上来把我推开。争执中我撞到了安检台，倒下的时候后脑勺磕在大理石地板上。机场的急救人员来过，但为时已晚。" },
+      { text: "收集证据走法律程序", effects: { attributes: { intelligence: 3, luck: 1, wealth: -2 } }, resultText: "我冷静下来，把所有转账记录、通话录音、邮件往来打印了厚厚一摞交给律师。他跑到了国外，但账户被冻结、上了国际通缉名单。钱大部分追不回来——但我守住了底线。有时候正义不是把对方打倒，而是你没有被他拉下水。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_mid_train", title: "迟没远逝",
+    description: "你站在地铁站台上等末班车。站台上只有你一个人。头晕晕的——今晚喝得有点多。轨道深处传来列车进站的轰隆声，你往站台边缘迈了一步想看看车来了没有。",
+    minAge: createAge(35), maxAge: createAge(50), weight: 1, maxTriggers: 1, cooldownYears: 999,
+    choices: [
+      { text: "往前探身看看", effects: { attributes: {}, isLethal: true }, resultText: "酒精让我的判断慢了一拍——等我意识到自己离边缘太近的时候，列车已经进站。一阵风将我卷入轨道。这一生最后一个念头是一句没来得及说的话：我应该打车回家的。" },
+      { text: "扶住墙、退到黄线后", effects: { attributes: { luck: 2, intelligence: 1 } }, resultText: "我往后踉跄了一步，一只手撑在墙上。列车呼啸进站，带起的风拍在脸上，酒醒了大半。上车后我给妻子发了条消息：'以后晚上喝酒我打车回家。'有些事情，侥幸了一次就不能再赌第二次。" },
+    ],
+  },
+
+  // ══ 新增：晚年期即死事件 61-100 ══
+  {
+    type: "parametric", id: "p_elder_fall", title: "残明已散",
+    description: "你在浴室里滑倒了。花洒还开着，水已经漫到了地砖上。后脑勺有点疼，你试着站起来——腿使不上劲。手机在卧室里充电。",
+    minAge: createAge(70), maxAge: createAge(90), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { physique: 3 },
+    choices: [
+      { text: "拼命挣扎站起来", effects: { attributes: {}, isLethal: true }, resultText: "我用尽全身力气扶着洗脸台想把自己撑起来——瓷砖太滑了。第二次摔倒的时候头撞到了马桶边缘。水温还是热的，但身体不再动了。家人发现的时候已经是第二天下午。" },
+      { text: "大声呼救，等待帮助", effects: { attributes: { physique: -1, luck: 2 } }, resultText: "我没有乱动，用手边的浴巾裹住自己保暖，然后大声喊老伴的名字。她听到叫声跑过来，吓得打 120。救护车来了，脑 CT 没有大碍——只是摔了一下，狼狈了些。但这之后我在浴室里铺了防滑垫。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_elder_scam", title: "沉没一瞬",
+    description: "电话那头的'公安局'说你的银行卡涉嫌洗钱，需要把钱转到'安全账户'。对方准确地报出了你的身份证号和住址，语气严厉。你的手已经开始抖了。",
+    minAge: createAge(68), maxAge: createAge(85), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { wealth: 3 },
+    choices: [
+      { text: "按对方说的转钱", effects: { attributes: { wealth: -25, luck: -3 }, isLethal: false }, resultText: "我颤抖着手把一辈子的积蓄转了过去。挂掉电话后忽然觉得不对——拨回去，空号。我瘫在沙发上一整天没动，觉得自己像一个被时代抛弃的傻瓜。这笔钱再也没追回来。" },
+      { text: "挂掉电话，找儿女核实", effects: { attributes: { intelligence: 2, luck: 3 } }, resultText: "我挂掉电话后心跳还是很快。给女儿打了个电话——她说：'爸，你差点就被骗了！公安局不会打这种电话！'我擦了把汗，连说知道了。骗子挂了三次电话，第四次我直接开了免提让女儿跟他们聊。" },
+    ],
+  },
+  {
+    type: "parametric", id: "p_elder_flu", title: "残命叶逝",
+    description: "一场小感冒拖了两周不见好。咳嗽越来越厉害，夜里开始发低烧。老伴劝你去医院，但你觉得小题大做——不过是感冒而已。",
+    minAge: createAge(72), maxAge: createAge(92), weight: 2, maxTriggers: 1, cooldownYears: 999,
+    statRequirements: { physique: 3 },
+    choices: [
+      { text: "继续扛着，在家养养就好", effects: { attributes: {}, isLethal: true }, resultText: "一周后发展成重症肺炎。在 ICU 里住了一天，然后呼吸机也维持不住了。医生说老年人的免疫系统不比年轻人——一场感冒就可能是最后一根稻草。走的时候老伴还在说：我让他去医院，他就是不去。" },
+      { text: "老老实实去医院", effects: { attributes: { physique: 1, luck: 2, wealth: -1 } }, resultText: "挂了呼吸科，拍了个胸片——轻微肺炎。医生开了一周的药，囑咐多喝水、多休息。出院时老伴唠叨了一路，说'你看看，差点出大事'。我乖乖听着，知道她说得对。人老了，身体不会跟你商量，只会直接罢工。" },
+    ],
+  },
 ];
