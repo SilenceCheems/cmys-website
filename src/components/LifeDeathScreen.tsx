@@ -53,6 +53,18 @@ export function LifeDeathScreen() {
         className="h-[1px] w-24 bg-white/30"
       />
 
+      {/* 死因 */}
+      {state.deathRecord && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 3.0, duration: 1 }}
+          className="font-serif text-lg text-white/70 text-center italic leading-relaxed max-w-md"
+        >
+          "{state.deathRecord.cause}"
+        </motion.p>
+      )}
+
       {/* 描述 */}
       <motion.p
         initial={{ opacity: 0 }}
