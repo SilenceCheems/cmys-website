@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { motion, useMotionValue, useTransform } from "motion/react";
+import { useEffect, useCallback, useRef } from "react";
+import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import type { GameEvent, EventChoice } from "../engine/types";
 
 interface Props {
@@ -19,11 +19,32 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
     ["rgba(59,130,246,0.06)", "rgba(0,0,0,0)", "rgba(245,158,11,0.06)"]
   );
 
+  const threshold = window.innerWidth * 0.3;
+  const pullDistance = threshold + 40; // 动画目标：超过阈值一点
+  const pressed = useRef({ left: false, right: false });
+  const commit = useRef(onChoose);
+  commit.current = onChoose;
+
+  const animateTo = useCallback((target: number) => {
+    animate(dragX, target, { type: "spring", stiffness: 400, damping: 35 });
+  }, [dragX]);
+
+  const tryCommit = useCallback((direction: "left" | "right") => {
+    const x = dragX.get();
+    if (direction === "left" && x <= -threshold) {
+      commit.current(0);
+    } else if (direction === "right" && x >= threshold) {
+      commit.current(choices.length > 1 ? 1 : 0);
+    } else {
+      // 没过阈值，弹回
+      animateTo(0);
+    }
+  }, [dragX, threshold, choices.length, animateTo]);
+
   const handleDragEnd = useCallback(
     (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
-      const threshold = window.innerWidth * 0.3;
-      const velocity = info.velocity.x;
       const offset = info.offset.x;
+      const velocity = info.velocity.x;
 
       if (offset < -threshold || velocity < -500) {
         onChoose(0);
@@ -31,36 +52,62 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
         onChoose(choices.length > 1 ? 1 : 0);
       }
     },
-    [onChoose, choices.length]
+    [onChoose, choices.length, threshold]
   );
 
-  // 键盘监听
+  // 键盘：按键动画拖拽，松手结算
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
+      if (e.key === "ArrowLeft" && !e.repeat) {
         e.preventDefault();
-        onChoose(0);
-      } else if (e.key === "ArrowRight") {
+        pressed.current.left = true;
+        animateTo(-pullDistance);
+      } else if (e.key === "ArrowRight" && !e.repeat) {
         e.preventDefault();
-        onChoose(choices.length > 1 ? 1 : 0);
+        pressed.current.right = true;
+        animateTo(pullDistance);
       }
     };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        pressed.current.left = false;
+        if (pressed.current.right) {
+          // 右还按着 → 切到右边
+          animateTo(pullDistance);
+        } else {
+          tryCommit("left");
+        }
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        pressed.current.right = false;
+        if (pressed.current.left) {
+          animateTo(-pullDistance);
+        } else {
+          tryCommit("right");
+        }
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onChoose, choices.length]);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [animateTo, tryCommit, pullDistance]);
 
   const leftChoice = choices[0];
   const rightChoice = choices.length > 1 ? choices[1] : null;
 
   return (
     <div className="relative w-full max-w-lg mx-auto select-none">
-      {/* 背景色跟随拖动变化 */}
       <motion.div
         className="absolute inset-0 -inset-x-24 rounded-lg pointer-events-none"
         style={{ backgroundColor: bgTint }}
       />
 
-      {/* 卡片本体 */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
@@ -70,9 +117,7 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
         whileTap={{ cursor: "grabbing" }}
         className="relative bg-white border border-primary/10 cursor-grab active:cursor-grabbing shadow-sm"
       >
-        {/* 内容 */}
         <div className="relative z-10 p-6 sm:p-8 flex flex-col gap-5">
-          {/* 顶部标签 */}
           <div className="flex justify-between items-start">
             <span className="font-mono text-[10px] tracking-[0.3em] text-secondary/60 uppercase">
               {stageLabel ?? `${age} 岁`}
@@ -82,18 +127,15 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
             )}
           </div>
 
-          {/* 标题 */}
           <h2 className="font-serif text-3xl sm:text-4xl tracking-tighter leading-tight text-primary">
             {event.title}
           </h2>
           <div className="h-[1px] bg-primary/10 w-16" />
 
-          {/* 描述 */}
           <p className="font-mono text-sm text-secondary leading-relaxed">
             {event.description}
           </p>
 
-          {/* 选项 — 始终可见 */}
           <div className="grid grid-cols-2 gap-3 pt-1">
             <button
               onClick={() => onChoose(0)}
@@ -120,10 +162,9 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
             )}
           </div>
 
-          {/* 底部提示 */}
           <div className="flex justify-between items-center pt-1 border-t border-primary/5">
             <span className="font-mono text-[9px] text-secondary/30 uppercase tracking-widest">
-              ← 拖动或按键 →
+              ← 按住选择，松手确认 →
             </span>
             <div className="flex gap-1">
               <div className="w-1 h-1 bg-primary/15" />
@@ -134,9 +175,8 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
         </div>
       </motion.div>
 
-      {/* 键盘操作提示 */}
       <p className="text-center mt-5 font-mono text-[10px] text-secondary/25 tracking-widest">
-        ← → 方向键选择
+        按住 ← → 选择，松手确认
       </p>
     </div>
   );
