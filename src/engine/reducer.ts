@@ -5,6 +5,7 @@ import {
 } from "./types";
 import { checkDeath, checkRandomDeath, applyNaturalDecay } from "./death";
 import { selectEvent, shouldTriggerEvent } from "./events";
+import { generateConfidant } from "./relationship";
 
 // ── 属性初始化 ──
 function rollD6(): number {
@@ -37,7 +38,7 @@ export function createInitialState(talents: string[] = []): GameState {
     age: createAge(0),
     attributes: createInitialAttributes(),
     talents: [],
-    relationships: [],
+    relationships: [generateConfidant()],
     career: null,
     eventLog: [],
     triggeredEventIds: {},

@@ -23,11 +23,11 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "任一致命属性曾跌到 5 以下但最终存活",
     score: 50,
     check: (s) => {
-      // 通过 eventLog 轨迹推断：属性变化中有过大幅负值
+      // 在结算画面：没死 = 没触发 deathRecord；但早夭和百岁也算「非劫后余生」
       const lethalAttrs = ["appearance", "intelligence", "physique", "wealth"];
       return lethalAttrs.some((attr) => {
         return s.attributes[attr as keyof typeof s.attributes] <= 5;
-      }) && s.phase.type !== "dying";
+      }) && s.deathRecord === null;
     },
   },
   {
@@ -107,7 +107,7 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "活到 100 岁自然老死",
     score: 50,
     check: (s) => {
-      return s.age >= 100 && s.phase.type === "dying";
+      return s.age >= 100 && s.deathRecord !== null && s.deathRecord.cause.includes("寿终正寝");
     },
   },
   {
@@ -116,7 +116,7 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "20 岁前死亡",
     score: 20,
     check: (s) => {
-      return s.age <= 20 && s.phase.type === "dying";
+      return s.age <= 20 && s.deathRecord !== null;
     },
   },
   {
@@ -143,7 +143,7 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "壮年期（31-60）每次即死事件都选择了正确选项",
     score: 40,
     check: (s) => {
-      return s.age > 60 && s.phase.type !== "dying";
+      return s.age > 60 && s.deathRecord === null;
       // 简化：活过壮年期即达成
     },
   },
