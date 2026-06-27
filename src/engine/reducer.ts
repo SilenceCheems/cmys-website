@@ -8,7 +8,7 @@ import { selectEvent, shouldTriggerEvent } from "./events";
 
 // ── 属性初始化 ──
 function rollD6(): number {
-  return Math.floor(Math.random() * 4) + 2; // 2~5
+  return Math.floor(Math.random() * 3) + 3; // 3~5
 }
 
 export function createInitialAttributes(bonusPoints: Partial<Record<AttributeName, number>> = {}): Attributes {
