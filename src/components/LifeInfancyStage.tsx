@@ -83,6 +83,12 @@ export function LifeInfancyStage() {
         <p className="font-mono text-xs text-secondary/50">
           {narrationIndex + 1} / {infancyEvents.length}
         </p>
+        <button
+          onClick={() => setNarrationIndex(infancyEvents.length)}
+          className="mt-2 px-4 py-1 border border-primary/15 font-mono text-[10px] text-secondary/40 hover:text-secondary hover:border-primary/30 transition-colors cursor-pointer"
+        >
+          跳过
+        </button>
       </motion.div>
     </AnimatePresence>
   );
