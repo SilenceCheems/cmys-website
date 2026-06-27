@@ -14,8 +14,38 @@ export function LifeInfancyStage() {
 
   useEffect(() => {
     if (narrationIndex >= infancyEvents.length) {
-      // 婴幼期结束，进入少年期
-      const timer = setTimeout(() => dispatch({ type: "ADVANCE_AGE" }), 500);
+      // 婴幼期结束，直接跳到 6 岁进入少年期
+      const timer = setTimeout(() => {
+        // 应用所有婴幼期事件的自动效果到属性
+        let newAttrs = { ...state.attributes };
+        for (const e of infancyEvents) {
+          if (e.choices[0]?.effects?.attributes) {
+            for (const [k, v] of Object.entries(e.choices[0].effects.attributes)) {
+              newAttrs = {
+                ...newAttrs,
+                [k]: Math.max(0, Math.min(100, newAttrs[k as keyof typeof newAttrs] + (v as number))),
+              };
+            }
+          }
+        }
+        dispatch({
+          type: "LOAD_SAVE",
+          state: {
+            ...state,
+            age: 6 as import("../engine/types").Age,
+            attributes: newAttrs,
+            phase: { type: "playing", step: "aging" },
+            eventLog: infancyEvents.map((e) => ({
+              age: (e.triggerAge as number) as import("../engine/types").Age,
+              eventId: e.id,
+              title: e.title,
+              choiceText: e.choices[0]?.text ?? "",
+              attributeChanges: e.choices[0]?.effects?.attributes ?? {},
+            })),
+            triggeredEventIds: new Set(infancyEvents.map((e) => e.id)),
+          },
+        });
+      }, 800);
       return () => clearTimeout(timer);
     }
 

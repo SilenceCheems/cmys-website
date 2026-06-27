@@ -72,6 +72,7 @@ export type GameEvent = AnchorEvent | ParametricEvent | ProceduralEvent;
 
 export interface EventChoice {
   text: string;
+  resultText?: string;
   effects: {
     attributes?: Partial<Record<AttributeName, number>>;
     grantTalents?: string[];
@@ -80,6 +81,11 @@ export interface EventChoice {
     relationshipEffect?: { targetId: string; change: number };
     isLethal?: boolean;
   };
+}
+
+export interface EventResult {
+  text: string;
+  attributeChanges: Partial<Record<AttributeName, number>>;
 }
 
 // ── Relationship ──
@@ -102,6 +108,7 @@ export interface Career {
 
 // ── Game State ──
 export type GamePhase =
+  | { type: "save_choice" }
   | { type: "talent_selection"; round: number }
   | { type: "playing"; step: "aging" | "event_presenting" | "awaiting_choice" | "effect_resolving" }
   | { type: "dying"; cause: string }
@@ -118,15 +125,17 @@ export interface GameState {
   triggeredEventIds: Set<string>;
   currentEvent: GameEvent | null;
   pendingChoices: EventChoice[] | null;
+  lastResult: EventResult | null;
   deathRecord: DeathRecord | null;
 }
 
 export type GameAction =
   | { type: "SELECT_TALENT"; talentId: string }
   | { type: "START_GAME" }
-  | { type: "ADVANCE_AGE" }
+  | { type: "ADVANCE_AGE"; delta?: number }
   | { type: "RESOLVE_EVENT"; choiceIndex: number }
   | { type: "TRIGGER_DEATH"; cause: string }
+  | { type: "DISMISS_RESULT" }
   | { type: "SHOW_RESULT" }
   | { type: "RESTART" }
   | { type: "LOAD_SAVE"; state: GameState };

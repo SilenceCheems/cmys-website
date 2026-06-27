@@ -1,21 +1,50 @@
 // src/components/LifeGame.tsx
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useState } from "react";
 import type { GameAction } from "../engine/types";
 import { createInitialState, gameReducer } from "../engine/reducer";
-import { saveGame, hasSave, loadGame } from "../engine/autosave";
+import { saveGame, hasSave, loadGame, clearSave } from "../engine/autosave";
 import { LifeContext, type LifeContextValue } from "./LifeContext";
 import { LifeTalentPicker } from "./LifeTalentPicker";
 import { LifeInfancyStage } from "./LifeInfancyStage";
 import { LifeYouthStage } from "./LifeYouthStage";
 import { LifeMidlifeStage } from "./LifeMidlifeStage";
 import { LifeDeathScreen } from "./LifeDeathScreen";
+import { LifeElderStage } from "./LifeElderStage";
+import { LifeIntro } from "./LifeIntro";
+import { AnimatePresence, motion } from "motion/react";
 
 export function LifeGame() {
   const [state, dispatch] = useReducer(
     gameReducer,
     null,
-    () => hasSave() ? loadGame()! : createInitialState(),
+    () => {
+      if (hasSave()) {
+        return { ...createInitialState(), phase: { type: "save_choice" } };
+      }
+      return createInitialState();
+    },
   );
+
+  const [intro, setIntro] = useState<"show" | "fade" | "hide">("show");
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const origSnap = html.style.scrollSnapType;
+    const origOverflow = body.style.overflow;
+    const origScroll = html.style.scrollBehavior;
+    html.style.scrollSnapType = "none";
+    html.style.scrollBehavior = "auto";
+    body.style.overflow = "hidden";
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    requestAnimationFrame(() => {
+      body.style.overflow = origOverflow;
+      html.style.scrollBehavior = origScroll;
+    });
+    return () => {
+      html.style.scrollSnapType = origSnap;
+    };
+  }, []);
 
   // 年龄段切换时自动保存
   useEffect(() => {
@@ -28,6 +57,34 @@ export function LifeGame() {
     const phase = state.phase;
 
     switch (phase.type) {
+      case "save_choice":
+        return (
+          <div className="flex flex-col items-center gap-8">
+            <h2 className="font-serif text-3xl tracking-tighter">沉默一生</h2>
+            <p className="font-mono text-xs text-secondary">发现上次的旅程记录</p>
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={() => {
+                  const saved = loadGame();
+                  if (saved) dispatch({ type: "LOAD_SAVE", state: saved });
+                }}
+                className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase hover:bg-primary hover:text-canvas transition-colors"
+              >
+                继续上次旅程
+              </button>
+              <button
+                onClick={() => {
+                  clearSave();
+                  dispatch({ type: "RESTART" });
+                }}
+                className="px-6 py-2 border border-primary/30 font-mono text-xs tracking-[0.2em] uppercase text-secondary hover:border-primary/60 hover:text-primary transition-colors"
+              >
+                重新开始
+              </button>
+            </div>
+          </div>
+        );
+
       case "talent_selection":
         return <LifeTalentPicker />;
 
@@ -46,22 +103,25 @@ export function LifeGame() {
           return <LifeYouthStage />;
         }
         if (age <= 60) return <LifeMidlifeStage />;
-        // 晚年期暂时复用 youth stage
-        return <LifeYouthStage />;
+        return <LifeElderStage />;
       }
 
       case "dying":
         return (
-          <div className="flex flex-col items-center justify-center gap-6">
-            <p className="font-serif text-3xl tracking-tighter">生命终结</p>
-            <p className="font-mono text-sm text-secondary">{phase.cause}</p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center gap-6 text-primary"
+          >
+            <p className="font-serif text-3xl tracking-tighter text-white">生命终结</p>
+            <p className="font-mono text-sm text-white/50">{phase.cause}</p>
             <button
               onClick={() => dispatch({ type: "SHOW_RESULT" })}
-              className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase"
+              className="px-6 py-2 border border-white/30 font-mono text-xs tracking-[0.2em] uppercase text-white/60 hover:bg-white hover:text-black transition-colors"
             >
               查看结局
             </button>
-          </div>
+          </motion.div>
         );
 
       case "result":
@@ -71,6 +131,8 @@ export function LifeGame() {
         return null;
     }
   };
+
+  const isEnding = state.phase.type === "dying" || state.phase.type === "result";
 
   return (
     <LifeContext.Provider value={ctx}>
@@ -83,9 +145,42 @@ export function LifeGame() {
             backgroundSize: "100px 100px",
           }}
         />
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-8">
+
+        <AnimatePresence>
+          {intro === "show" && (
+            <LifeIntro onDone={() => setIntro("fade")} />
+          )}
+        </AnimatePresence>
+
+        {(intro === "show" || intro === "fade") && (
+          <motion.div
+            className="fixed inset-0 z-40 bg-black pointer-events-none"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: intro === "fade" ? 0 : 1 }}
+            transition={{ duration: 0.6 }}
+            onAnimationComplete={() => { if (intro === "fade") setIntro("hide"); }}
+          />
+        )}
+
+        <AnimatePresence>
+          {isEnding && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: state.phase.type === "result" ? 1 : 0.85 }}
+              transition={{ duration: state.phase.type === "result" ? 1.2 : 0.8 }}
+              className="absolute inset-0 z-20 bg-black pointer-events-none"
+            />
+          )}
+        </AnimatePresence>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: intro === "hide" ? 1 : 0 }}
+          transition={{ duration: 0.6 }}
+          className={`relative z-30 min-h-screen flex items-center justify-center p-8 ${isEnding ? "text-white" : ""}`}
+        >
           {renderPhase()}
-        </div>
+        </motion.div>
       </div>
     </LifeContext.Provider>
   );

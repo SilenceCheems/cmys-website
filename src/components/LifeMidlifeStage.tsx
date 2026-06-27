@@ -2,11 +2,21 @@
 import { useLife } from "./LifeContext";
 import { LifeEventCard } from "./LifeEventCard";
 import { LifeStatsBars } from "./LifeStatsBars";
+import { LifeEventResult } from "./LifeEventResult";
 import { motion } from "motion/react";
 
 export function LifeMidlifeStage() {
   const { state, dispatch } = useLife();
-  const { currentEvent, pendingChoices, age } = state;
+  const { currentEvent, pendingChoices, age, phase, lastResult } = state;
+
+  if (phase.type === "playing" && phase.step === "effect_resolving" && lastResult) {
+    return (
+      <LifeEventResult
+        result={lastResult}
+        onDismiss={() => dispatch({ type: "DISMISS_RESULT" })}
+      />
+    );
+  }
 
   if (currentEvent && pendingChoices) {
     return (
@@ -20,6 +30,7 @@ export function LifeMidlifeStage() {
           age={age}
           onChoose={(i) => dispatch({ type: "RESOLVE_EVENT", choiceIndex: i })}
         />
+        <LifeStatsBars attributes={state.attributes} compact />
       </div>
     );
   }
@@ -39,7 +50,7 @@ export function LifeMidlifeStage() {
         </div>
       )}
       <button
-        onClick={() => dispatch({ type: "ADVANCE_AGE" })}
+        onClick={() => dispatch({ type: "ADVANCE_AGE", delta: 3 })}
         className="px-6 py-2 border border-primary font-mono text-xs tracking-[0.2em] uppercase hover:bg-primary hover:text-canvas transition-colors"
       >
         继续（+3岁）

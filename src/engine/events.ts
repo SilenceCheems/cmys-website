@@ -99,5 +99,7 @@ export function shouldTriggerEvent(age: number): boolean {
   if (age <= 5) return false; // 婴幼期自动叙事，不走事件引擎
   if (age <= 30) return true;  // 少年/青年期每岁
   if (age <= 60) return (age - 31) % 3 === 0; // 壮年期每3年
-  return (age - 61) % 5 === 0 || (age - 61) % 7 === 0; // 晚年期每5~10年
+  if (age <= 70) return (age - 61) % 3 === 0;
+  if (age <= 85) return (age - 71) % 5 === 0;
+  return (age - 86) % 7 === 0;
 }

@@ -43,6 +43,7 @@ export function createInitialState(talents: string[] = []): GameState {
     triggeredEventIds: new Set(),
     currentEvent: null,
     pendingChoices: null,
+    lastResult: null,
     deathRecord: null,
   };
 }
@@ -58,6 +59,60 @@ function applyAttributeChanges(
   return next;
 }
 
+function advanceYears(state: GameState, delta: number): GameState {
+  let currentState = { ...state };
+  let attrs = { ...currentState.attributes };
+
+  for (let step = 0; step < delta; step++) {
+    const nextAge = (currentState.age as number) + 1 > 100 ? 100 : (currentState.age as number) + 1;
+    const decay = applyNaturalDecay(nextAge);
+    attrs = applyAttributeChanges(attrs, decay);
+
+    currentState = {
+      ...currentState,
+      age: createAge(nextAge),
+      attributes: attrs,
+      phase: { type: "playing", step: "aging" },
+      currentEvent: null,
+      pendingChoices: null,
+    };
+
+    const deathCheck = checkDeath(currentState);
+    if (deathCheck.isDead) {
+      return {
+        ...currentState,
+        phase: { type: "dying", cause: deathCheck.cause! },
+        deathRecord: { age: currentState.age, cause: deathCheck.cause! },
+      };
+    }
+
+    const isLastStep = step === delta - 1;
+    if (isLastStep && shouldTriggerEvent(nextAge)) {
+      const event = selectEvent(currentState);
+      if (event) {
+        currentState.currentEvent = event;
+        if (event.type === "procedural") {
+          attrs = applyAttributeChanges(attrs, event.effects);
+          currentState.attributes = attrs;
+          currentState.eventLog = [...currentState.eventLog, {
+            age: currentState.age,
+            eventId: event.id,
+            title: event.title,
+            choiceText: "（自动）",
+            attributeChanges: event.effects,
+          }];
+          currentState.triggeredEventIds = new Set([...currentState.triggeredEventIds, event.id]);
+        } else {
+          currentState.pendingChoices = event.choices;
+          currentState.phase = { type: "playing", step: "event_presenting" };
+        }
+      }
+    }
+  }
+
+  return currentState;
+}
+
 // ── Reducer ──
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -66,58 +121,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, phase: { type: "playing", step: "aging" }, age: createAge(0) };
 
     case "ADVANCE_AGE": {
-      const nextAge = (state.age as number) + 1 > 100 ? 100 : (state.age as number) + 1;
-      let attrs = { ...state.attributes };
-
-      // 应用自然衰老
-      const decay = applyNaturalDecay(nextAge);
-      attrs = applyAttributeChanges(attrs, decay);
-
-      const newState: GameState = {
-        ...state,
-        age: createAge(nextAge),
-        attributes: attrs,
-        phase: { type: "playing", step: "aging" },
-        currentEvent: null,
-        pendingChoices: null,
-      };
-
-      // 死亡判定
-      const deathCheck = checkDeath(newState);
-      if (deathCheck.isDead) {
-        return {
-          ...newState,
-          phase: { type: "dying", cause: deathCheck.cause! },
-          deathRecord: { age: newState.age, cause: deathCheck.cause! },
-        };
-      }
-
-      // 是否需要触发事件
-      if (shouldTriggerEvent(nextAge)) {
-        const event = selectEvent(newState);
-        if (event) {
-          newState.currentEvent = event;
-          if (event.type === "procedural") {
-            // 程序事件自动结算
-            attrs = applyAttributeChanges(attrs, event.effects);
-            newState.attributes = attrs;
-            newState.eventLog = [...newState.eventLog, {
-              age: newState.age,
-              eventId: event.id,
-              title: event.title,
-              choiceText: "（自动）",
-              attributeChanges: event.effects,
-            }];
-            newState.triggeredEventIds = new Set([...newState.triggeredEventIds, event.id]);
-          } else {
-            // 锚点/参数化事件：展示选项
-            newState.pendingChoices = event.choices;
-            newState.phase = { type: "playing", step: "event_presenting" };
-          }
-        }
-      }
-
-      return newState;
+      return advanceYears(state, action.delta ?? 1);
     }
 
     case "RESOLVE_EVENT": {
@@ -178,6 +182,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         phase: { type: "playing", step: "effect_resolving" },
         currentEvent: null,
         pendingChoices: null,
+        lastResult: {
+          text: choice.resultText ?? `你选择了"${choice.text}"。`,
+          attributeChanges: choice.effects.attributes ?? {},
+        },
       };
 
       // 选项结算后再次判定死亡
@@ -192,6 +200,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return resolvedState;
     }
+
+    case "DISMISS_RESULT":
+      return advanceYears({ ...state, lastResult: null }, 1);
 
     case "TRIGGER_DEATH":
       return {

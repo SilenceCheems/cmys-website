@@ -1,10 +1,19 @@
 // src/components/LifeTalentPicker.tsx
 import { useState } from "react";
 import { useLife } from "./LifeContext";
-import type { Talent } from "../engine/types";
+import type { Talent, AttributeName } from "../engine/types";
 import { TALENT_POOL } from "../data/life/talents";
 import { selectTalentsForRound, applyTalentToAttributes } from "../engine/talent";
 import { motion } from "motion/react";
+
+const ATTR_LABEL: Record<AttributeName, string> = {
+  appearance: "颜值",
+  intelligence: "智力",
+  physique: "体质",
+  wealth: "家境",
+  creativity: "才脉",
+  luck: "运势",
+};
 
 export function LifeTalentPicker() {
   const { state, dispatch } = useLife();
@@ -79,12 +88,12 @@ export function LifeTalentPicker() {
             <div className="flex flex-wrap gap-1">
               {Object.entries(talent.positive).map(([k, v]) => (
                 <span key={k} className="text-[10px] font-mono text-green-700 px-1">
-                  {k}+{v}
+                  {ATTR_LABEL[k as AttributeName]}+{v}
                 </span>
               ))}
               {Object.entries(talent.negative).map(([k, v]) => (
                 <span key={k} className="text-[10px] font-mono text-red-700 px-1">
-                  {k}{v}
+                  {ATTR_LABEL[k as AttributeName]}{v}
                 </span>
               ))}
             </div>

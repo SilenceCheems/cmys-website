@@ -59,7 +59,7 @@ export function checkDeath(state: GameState): DeathCheck {
 
 // 体质自然衰减：30岁起每5年-1
 export function applyNaturalDecay(age: number): Partial<Record<AttributeName, number>> {
-  if (age < 30) return {};
-  const decay = Math.floor((age - 30) / 5);
-  return { physique: -Math.min(decay, 14) }; // 最多 -14
+  if (age <= 30) return {};
+  if ((age - 30) % 5 === 0) return { physique: -1 };
+  return {};
 }
