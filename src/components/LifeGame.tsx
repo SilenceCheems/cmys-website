@@ -111,16 +111,26 @@ export function LifeGame() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center gap-6 text-primary"
+            className="flex flex-col items-center justify-center gap-8 max-w-lg text-center"
           >
-            <p className="font-serif text-3xl tracking-tighter text-white">生命终结</p>
-            <p className="font-mono text-sm text-white/50">{phase.cause}</p>
-            <button
-              onClick={() => dispatch({ type: "SHOW_RESULT" })}
-              className="px-6 py-2 border border-white/30 font-mono text-xs tracking-[0.2em] uppercase text-white/60 hover:bg-white hover:text-black transition-colors"
+            <p className="font-serif text-2xl tracking-tighter text-white/40">
+              享年 {state.age} 岁
+            </p>
+            <p className="font-serif text-xl leading-relaxed text-white/70 italic">
+              "{phase.cause}"
+            </p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
             >
-              查看结局
-            </button>
+              <button
+                onClick={() => dispatch({ type: "SHOW_RESULT" })}
+                className="px-6 py-2 border border-white/20 font-mono text-xs tracking-[0.2em] uppercase text-white/50 hover:border-white/50 hover:text-white/80 transition-colors"
+              >
+                查看结局
+              </button>
+            </motion.div>
           </motion.div>
         );
 

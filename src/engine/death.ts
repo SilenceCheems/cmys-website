@@ -32,14 +32,14 @@ export function checkDeath(state: GameState): DeathCheck {
   for (const attr of LETHAL_ATTRIBUTES) {
     if (attributes[attr] <= threshold) {
       const causeMap: Record<string, string> = {
-        physique: "体质衰竭",
-        appearance: "容颜尽毁",
-        intelligence: "心智崩溃",
-        wealth: "家道中落",
+        physique: "身体被经年累月的伤病与疲惫彻底耗尽，油尽灯枯",
+        appearance: "那个曾经光彩照人的面容在岁月的刀锋下破碎，带走了生的意志",
+        intelligence: "那些曾活跃的思绪如烛火般熄灭，心智沉入无边的黑暗中",
+        wealth: "一贫如洗。在这个寒冷的世间，没有钱就意味着没有活下去的资格",
       };
       return {
         isDead: true,
-        cause: `${causeMap[attr]}，生命走到了尽头`,
+        cause: causeMap[attr],
       };
     }
   }
@@ -78,10 +78,9 @@ export function checkRandomDeath(age: number): DeathCheck {
 
   if (Math.random() < probability) {
     const causes = [
-      "一场突如其来的车祸夺走了生命",
-      "急病发作，医治无效",
-      "天有不测风云，意外降临",
-      "在睡梦中安然离世——太早了，但命运从不商量",
+      "一场毫无预兆的车祸。红绿灯、斑马线、安全气囊——这些词汇在命运面前轻如鸿毛",
+      "一种从未听说过的急病在几天内席卷了全身。医生尽了全力，但生命有时就是这样不讲道理",
+      "命运伸出了它冰冷的触须——一次再平常不过的意外，却在那个瞬间成了终局",
     ];
     return {
       isDead: true,

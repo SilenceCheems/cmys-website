@@ -149,6 +149,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       // 检查选择是否致死
       if (choice.effects.isLethal) {
+        const deathNarrative = choice.resultText
+          ?? `在"${event.title}"中做出了致命的选择。`;
         return {
           ...state,
           attributes: attrs,
@@ -160,8 +162,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             attributeChanges: choice.effects.attributes ?? {},
           }],
           triggeredEventIds: newTriggeredIds,
-          phase: { type: "dying", cause: `因"${event.title}"而离世` },
-          deathRecord: { age: state.age, cause: `因"${event.title}"而离世` },
+          phase: { type: "dying", cause: deathNarrative },
+          deathRecord: { age: state.age, cause: deathNarrative },
           currentEvent: null,
           pendingChoices: null,
         };
