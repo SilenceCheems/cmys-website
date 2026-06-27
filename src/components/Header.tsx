@@ -10,13 +10,14 @@ export function Header() {
   const height = useTransform(scrollYProgress, [0, 0.2], ["15vh", "8vh"]);
   const logoScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.7]);
   const isGachaPage = location.pathname === "/gacha";
+  const isLifePage = location.pathname === "/life";
+  const isHomePage = location.pathname === "/";
   const headerY = useTransform(scrollYProgress, [0.85, 0.9], [isGachaPage ? "0%" : "0%", isGachaPage ? "0%" : "-100%"]);
   const headerOpacity = useTransform(scrollYProgress, [0.85, 0.9], [1, isGachaPage ? 1 : 0]);
 
   const navLinks = [
     { name: "纯墨韵声", section: "roots", type: "anchor" },
     { name: "驰鸣羽势", section: "growth", type: "anchor" },
-    { name: "诚盟远溯", section: "now", type: "anchor" },
     { name: "聪明一世", path: "/gacha", type: "route" },
     { name: "沉默一生", path: "/life", type: "route" },
   ];
@@ -46,16 +47,18 @@ export function Header() {
   return (
     <motion.header
       style={{ height, y: headerY, opacity: headerOpacity }}
-      className="fixed top-0 left-0 w-full z-50 flex items-center border-b border-primary/10 px-6 overflow-hidden transition-all duration-300"
+      className={`fixed top-0 left-0 w-full z-50 flex items-center border-b border-primary/10 px-6 overflow-hidden transition-all duration-300 ${
+        isLifePage ? "hidden" : ""
+      }`}
     >
       <div className="w-full grid grid-cols-3 items-center">
         {/* Left Nav */}
         <nav className="hidden md:flex gap-8 items-center">
-          {!isGachaPage && navLinks.slice(0, 2).map((link) => (
-            <NavLink 
-              key={link.name} 
-              name={link.name} 
-              onClick={() => handleNavClick(link)} 
+          {!isGachaPage && isHomePage && navLinks.slice(0, 2).map((link) => (
+            <NavLink
+              key={link.name}
+              name={link.name}
+              onClick={() => handleNavClick(link)}
               isActive={link.type === 'route' ? location.pathname === link.path : false}
             />
           ))}
@@ -63,9 +66,9 @@ export function Header() {
         <div className="md:hidden" />
 
         {/* Center Logo */}
-        <motion.div 
+        <motion.div
           style={{ scale: logoScale }}
-          className="flex justify-center items-center"
+          className={`flex justify-center items-center ${!isHomePage ? "md:opacity-0 pointer-events-none" : ""}`}
         >
           <button 
             onClick={() => {
@@ -92,11 +95,11 @@ export function Header() {
 
         {/* Right Nav */}
         <nav className="hidden md:flex gap-8 items-center justify-end">
-          {!isGachaPage && navLinks.slice(2).map((link) => (
-            <NavLink 
-              key={link.name} 
-              name={link.name} 
-              onClick={() => handleNavClick(link)} 
+          {!isGachaPage && isHomePage && navLinks.slice(2).map((link) => (
+            <NavLink
+              key={link.name}
+              name={link.name}
+              onClick={() => handleNavClick(link)}
               isActive={link.type === 'route' ? location.pathname === link.path : false}
             />
           ))}

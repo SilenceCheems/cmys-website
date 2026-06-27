@@ -47,25 +47,26 @@ function getStoredDailyFortune(fortunes: Fortune[]): Fortune | null {
   }
 }
 
-function AppContent({ 
-  onOpenFortune, 
-  dailyFortune, 
-  isFortuneOpen, 
-  onCloseFortune, 
-  onDailyFortuneSet 
-}: { 
-  onOpenFortune: () => void, 
+function AppContent({
+  onOpenFortune,
+  dailyFortune,
+  isFortuneOpen,
+  onCloseFortune,
+  onDailyFortuneSet
+}: {
+  onOpenFortune: () => void,
   dailyFortune: Fortune | null,
   isFortuneOpen: boolean,
   onCloseFortune: () => void,
   onDailyFortuneSet: (f: Fortune | null) => void
 }) {
   const location = useLocation();
-  const showFooter = location.pathname !== "/gacha";
+  const showFooter = location.pathname !== "/gacha" && location.pathname !== "/life";
+  const showDecorativeScrollbar = location.pathname !== "/life";
 
   return (
     <div className="relative">
-      <DecorativeScrollbar />
+      {showDecorativeScrollbar && <DecorativeScrollbar />}
       <Header />
       <main className="relative z-20 min-h-screen bg-canvas text-primary font-sans selection:bg-primary selection:text-canvas">
         <Routes>
