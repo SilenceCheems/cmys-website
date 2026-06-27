@@ -3,7 +3,7 @@ import {
   type GameState, type GameAction, type Attributes, type AttributeName, type Age,
   attr, createAge,
 } from "./types";
-import { checkDeath, applyNaturalDecay } from "./death";
+import { checkDeath, checkRandomDeath, applyNaturalDecay } from "./death";
 import { selectEvent, shouldTriggerEvent } from "./events";
 
 // ── 属性初始化 ──
@@ -40,7 +40,7 @@ export function createInitialState(talents: string[] = []): GameState {
     relationships: [],
     career: null,
     eventLog: [],
-    triggeredEventIds: new Set(),
+    triggeredEventIds: {},
     currentEvent: null,
     pendingChoices: null,
     lastResult: null,
@@ -86,6 +86,15 @@ function advanceYears(state: GameState, delta: number): GameState {
       };
     }
 
+    const randomDeath = checkRandomDeath(nextAge);
+    if (randomDeath.isDead) {
+      return {
+        ...currentState,
+        phase: { type: "dying", cause: randomDeath.cause! },
+        deathRecord: { age: currentState.age, cause: randomDeath.cause! },
+      };
+    }
+
     const isLastStep = step === delta - 1;
     if (isLastStep && shouldTriggerEvent(nextAge)) {
       const event = selectEvent(currentState);
@@ -101,7 +110,7 @@ function advanceYears(state: GameState, delta: number): GameState {
             choiceText: "（自动）",
             attributeChanges: event.effects,
           }];
-          currentState.triggeredEventIds = new Set([...currentState.triggeredEventIds, event.id]);
+          currentState.triggeredEventIds = { ...currentState.triggeredEventIds, [event.id]: nextAge };
         } else {
           currentState.pendingChoices = event.choices;
           currentState.phase = { type: "playing", step: "event_presenting" };
@@ -131,11 +140,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       let attrs = applyAttributeChanges(state.attributes, choice.effects.attributes ?? {});
       const event = state.currentEvent;
-      const newTriggeredIds = new Set([...state.triggeredEventIds]);
+      const newTriggeredIds = { ...state.triggeredEventIds };
 
       // 锚点/参数化事件记录触发
       if (event.type === "anchor" || event.type === "parametric") {
-        newTriggeredIds.add(event.id);
+        newTriggeredIds[event.id] = state.age as number;
       }
 
       // 检查选择是否致死
@@ -222,9 +231,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "LOAD_SAVE": {
+      const loaded = action.state;
+      const raw: unknown = loaded.triggeredEventIds;
+      let triggered: Record<string, number> = {};
+      if (raw instanceof Set) {
+        // 兼容旧格式：Set → Record（所有事件视为在当前年龄触发）
+        for (const id of raw) {
+          triggered[id] = loaded.age as number;
+        }
+      } else if (raw && typeof raw === "object") {
+        triggered = { ...(raw as Record<string, number>) };
+      }
       return {
-        ...action.state,
-        triggeredEventIds: action.state.triggeredEventIds ?? new Set(),
+        ...loaded,
+        triggeredEventIds: triggered,
       };
     }
 
