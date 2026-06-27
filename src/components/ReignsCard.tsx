@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { motion, useMotionValue, useTransform } from "motion/react";
 import type { GameEvent, EventChoice } from "../engine/types";
 
@@ -7,21 +7,17 @@ interface Props {
   choices: EventChoice[];
   age: number;
   onChoose: (index: number) => void;
-  stageLabel?: string; // 如 "切片事件 · 32~34 岁"
+  stageLabel?: string;
 }
 
 export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props) {
   const dragX = useMotionValue(0);
   const rotate = useTransform(dragX, [-300, 0, 300], [-15, 0, 15]);
-  const leftOpacity = useTransform(dragX, [-300, -150, 0], [1, 0.8, 0]);
-  const rightOpacity = useTransform(dragX, [0, 150, 300], [0, 0.8, 1]);
   const bgColor = useTransform(
     dragX,
     [-300, 0, 300],
     ["rgba(0,40,80,0.4)", "rgba(0,0,0,0)", "rgba(80,30,0,0.4)"]
   );
-  const [isDragging, setIsDragging] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleDragEnd = useCallback(
     (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
@@ -36,7 +32,6 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
         // 右滑 → 选右选项 (index 1)
         onChoose(choices.length > 1 ? 1 : 0);
       }
-      setIsDragging(false);
     },
     [onChoose, choices.length]
   );
@@ -57,30 +52,21 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
   }, [onChoose, choices.length]);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-lg mx-auto select-none">
+    <div className="relative w-full max-w-lg mx-auto select-none">
       {/* 背景色跟随拖动变化 */}
       <motion.div
         className="absolute inset-0 -inset-x-32 rounded-lg pointer-events-none"
         style={{ backgroundColor: bgColor }}
       />
 
-      {/* 左右选项标签 */}
-      <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-        <motion.span
-          style={{ opacity: leftOpacity }}
-          className="text-[10px] font-mono text-blue-400/60 tracking-widest uppercase -rotate-90 origin-center whitespace-nowrap"
-        >
-          {choices[0]?.text ?? ""}
-        </motion.span>
-      </div>
-      <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
-        <motion.span
-          style={{ opacity: rightOpacity }}
-          className="text-[10px] font-mono text-amber-400/60 tracking-widest uppercase rotate-90 origin-center whitespace-nowrap"
-        >
-          {choices.length > 1 ? choices[1]?.text ?? "" : ""}
-        </motion.span>
-      </div>
+      {/* 拖拽方向提示 — 仅拖动时浮现 */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none flex items-center justify-between px-4 z-20"
+        style={{ opacity: useTransform(dragX, [-50, 0, 50], [0.15, 0, 0.15]) }}
+      >
+        <span className="font-mono text-[10px] text-blue-300/30">◁</span>
+        <span className="font-mono text-[10px] text-amber-300/30">▷</span>
+      </motion.div>
 
       {/* 卡片本体 — 复用运势卡视觉风格 */}
       <motion.div
@@ -93,7 +79,6 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
           clipPath: "polygon(40px 0%, 100% 0%, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0% 100%, 0% 40px)",
           boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
         }}
-        onDragStart={() => setIsDragging(true)}
         onDragEnd={handleDragEnd}
         whileTap={{ cursor: "grabbing" }}
         className="relative bg-[#121212] cursor-grab active:cursor-grabbing rounded-sm overflow-hidden"
@@ -132,6 +117,29 @@ export function ReignsCard({ event, choices, age, onChoose, stageLabel }: Props)
           <p className="font-mono text-sm text-white/50 leading-relaxed">
             {event.description}
           </p>
+
+          {/* 选项 — 始终可见 */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="flex items-center gap-2 p-3 border border-white/10 rounded-sm group cursor-pointer hover:border-blue-400/40 transition-colors"
+              onClick={() => onChoose(0)}
+            >
+              <span className="font-mono text-[10px] text-blue-400/50 shrink-0">←</span>
+              <span className="font-mono text-xs text-white/60 group-hover:text-white/90 transition-colors leading-tight">
+                {choices[0]?.text ?? "—"}
+              </span>
+            </div>
+            {choices.length > 1 && (
+              <div className="flex items-center gap-2 p-3 border border-white/10 rounded-sm group cursor-pointer hover:border-amber-400/40 transition-colors text-right"
+                onClick={() => onChoose(1)}
+              >
+                <span className="font-mono text-xs text-white/60 group-hover:text-white/90 transition-colors leading-tight flex-1">
+                  {choices[1]?.text ?? "—"}
+                </span>
+                <span className="font-mono text-[10px] text-amber-400/50 shrink-0">→</span>
+              </div>
+            )}
+            {choices.length <= 1 && <div />}
+          </div>
 
           {/* 底部提示 */}
           <div className="flex justify-between items-center pt-2 border-t border-white/5">
