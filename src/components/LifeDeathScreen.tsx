@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { useLife } from "./LifeContext";
 import { computeResult } from "../engine/ending";
 import { ENDING_FLAVOR_TEXTS } from "../data/life/endings";
+import { ALL_ACHIEVEMENTS } from "../data/life/achievements";
 
 export function LifeDeathScreen() {
   const { state, dispatch } = useLife();
@@ -93,6 +94,52 @@ export function LifeDeathScreen() {
           ))}
         </motion.div>
       )}
+
+      {/* 成就 */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 5.0, duration: 0.8 }}
+        className="w-full border-t border-white/10 pt-8"
+      >
+        <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-4 text-center">
+          成就 ({result.achievements.length}/{result.allAchievements.length})
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {result.allAchievements.map((id, i) => {
+            const achievement = ALL_ACHIEVEMENTS.find((a) => a.id === id);
+            if (!achievement) return null;
+            const unlocked = result.achievements.includes(id);
+            return (
+              <motion.div
+                key={id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 5.2 + i * 0.05 }}
+                className={`p-3 border text-left font-mono text-xs ${
+                  unlocked
+                    ? "border-white/20 text-white/70"
+                    : "border-white/5 text-white/15"
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <span className={unlocked ? "" : "line-through"}>
+                    {achievement.name}
+                  </span>
+                  {unlocked && (
+                    <span className="text-[10px] text-white/40">
+                      +{achievement.score}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] mt-1 text-white/30 leading-relaxed">
+                  {achievement.description}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
 
       {/* 人生回顾 */}
       {state.eventLog.length > 0 && (
