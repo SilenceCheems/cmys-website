@@ -217,7 +217,7 @@ export const ANCHOR_EVENTS: AnchorEvent[] = [
 
   // ── 青年期 ──
   {
-    type: "anchor", id: "a_young_lost", title: "沉没永夜",
+    type: "anchor", id: "a_young_lost", title: "沉没永逝",
     description: "毕业旅行的最后一晚，你和朋友在异乡的海滩上喝醉了。有人提议游到那个发光的浮标那边——月光很美，海浪很温柔。",
     minAge: createAge(23), maxAge: createAge(23), triggerAge: 23,
     choices: [
