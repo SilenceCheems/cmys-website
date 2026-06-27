@@ -185,9 +185,12 @@ export interface ResolvedEvent {
   attributeChanges: Partial<Record<AttributeName, number>>;
 }
 
+export type DeathType = "attribute" | "lethal_choice" | "accident" | "natural";
+
 export interface DeathRecord {
   age: Age;
   cause: string;
+  deathType: DeathType;
 }
 
 export interface GameResult {

@@ -84,7 +84,7 @@ function advanceYears(state: GameState, delta: number): GameState {
       return {
         ...currentState,
         phase: { type: "dying", cause: deathCheck.cause! },
-        deathRecord: { age: currentState.age, cause: deathCheck.cause! },
+        deathRecord: { age: currentState.age, cause: deathCheck.cause!, deathType: deathCheck.deathType ?? "attribute" },
       };
     }
 
@@ -93,7 +93,7 @@ function advanceYears(state: GameState, delta: number): GameState {
       return {
         ...currentState,
         phase: { type: "dying", cause: randomDeath.cause! },
-        deathRecord: { age: currentState.age, cause: randomDeath.cause! },
+        deathRecord: { age: currentState.age, cause: randomDeath.cause!, deathType: randomDeath.deathType ?? "accident" },
       };
     }
 
@@ -165,7 +165,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           }],
           triggeredEventIds: newTriggeredIds,
           phase: { type: "dying", cause: deathNarrative },
-          deathRecord: { age: state.age, cause: deathNarrative },
+          deathRecord: { age: state.age, cause: deathNarrative, deathType: "lethal_choice" },
           currentEvent: null,
           pendingChoices: null,
         };
@@ -233,7 +233,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...resolvedState,
           phase: { type: "dying", cause: postDeathCheck.cause! },
-          deathRecord: { age: resolvedState.age, cause: postDeathCheck.cause! },
+          deathRecord: { age: resolvedState.age, cause: postDeathCheck.cause!, deathType: postDeathCheck.deathType ?? "attribute" },
         };
       }
 
@@ -247,7 +247,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: { type: "dying", cause: action.cause },
-        deathRecord: { age: state.age, cause: action.cause },
+        deathRecord: { age: state.age, cause: action.cause, deathType: "accident" },
       };
 
     case "SHOW_RESULT":

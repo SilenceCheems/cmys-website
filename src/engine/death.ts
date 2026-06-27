@@ -11,6 +11,7 @@ const ZERO_PENALTY: Record<string, string> = {
 export interface DeathCheck {
   isDead: boolean;
   cause?: string;
+  deathType?: import("./types").DeathType;
   penalty?: { attribute: AttributeName; description: string };
   sealedTalent?: boolean;
   luckCursed?: boolean;
@@ -40,6 +41,7 @@ export function checkDeath(state: GameState): DeathCheck {
       return {
         isDead: true,
         cause: causeMap[attr],
+        deathType: "attribute",
       };
     }
   }
@@ -61,7 +63,7 @@ export function checkDeath(state: GameState): DeathCheck {
   }
 
   if (age >= 100) {
-    return { isDead: true, cause: "寿终正寝，百年人生圆满落幕" };
+    return { isDead: true, cause: "寿终正寝，百年人生圆满落幕", deathType: "natural" };
   }
 
   return { isDead: false };
@@ -85,6 +87,7 @@ export function checkRandomDeath(age: number): DeathCheck {
     return {
       isDead: true,
       cause: causes[Math.floor(Math.random() * causes.length)],
+      deathType: "accident",
     };
   }
 
