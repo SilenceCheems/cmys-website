@@ -80,6 +80,7 @@ export interface EventChoice {
     removeTalents?: string[];
     triggerEventId?: string;
     relationshipEffect?: { targetId: string; change: number };
+    careerLevelDelta?: number;  // 新增：职业等级变化
     isLethal?: boolean;
   };
 }
@@ -160,6 +161,7 @@ export interface GameState {
   currentEvent: GameEvent | null;
   pendingChoices: EventChoice[] | null;
   lastResult: EventResult | null;
+  nearDeathCount: number;  // 新增：遭遇即死选项的次数
   deathRecord: DeathRecord | null;
 }
 

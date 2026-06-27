@@ -5,7 +5,7 @@ import {
 } from "./types";
 import { checkDeath, checkRandomDeath, applyNaturalDecay } from "./death";
 import { selectEvent, shouldTriggerEvent } from "./events";
-import { generateConfidant } from "./relationship";
+import { generateConfidant, updateAffinity } from "./relationship";
 
 // ── 属性初始化 ──
 function rollD6(): number {
@@ -45,6 +45,7 @@ export function createInitialState(talents: string[] = []): GameState {
     currentEvent: null,
     pendingChoices: null,
     lastResult: null,
+    nearDeathCount: 0,
     deathRecord: null,
   };
 }
@@ -170,6 +171,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         };
       }
 
+      // 应用关系效果
+      let relationships = [...state.relationships];
+      if (choice.effects.relationshipEffect) {
+        const { targetId, change } = choice.effects.relationshipEffect;
+        relationships = relationships.map((r) => {
+          if (r.id === targetId || (targetId === "confidant" && r.tag === "confidant")) {
+            return updateAffinity(r, change);
+          }
+          return r;
+        });
+      }
+
+      // 应用职业等级变化
+      let career = state.career;
+      if (choice.effects.careerLevelDelta && career) {
+        const newLevel = Math.max(1, Math.min(10, career.level + choice.effects.careerLevelDelta));
+        career = { ...career, level: newLevel };
+      }
+
       // 应用天赋授予/移除
       let talents = [...state.talents];
       if (choice.effects.grantTalents) {
@@ -179,10 +199,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         talents = talents.filter((t) => !choice.effects.removeTalents!.includes(t.id));
       }
 
+      // 检查当前事件是否包含致死选项（用于不死鸟成就追踪）
+      const eventHasLethalOption = (event.type === "anchor" || event.type === "parametric") &&
+        (event as any).choices?.some((c: any) => c.effects?.isLethal);
+
       const resolvedState: GameState = {
         ...state,
         attributes: attrs,
         talents,
+        relationships,
+        career,
         eventLog: [...state.eventLog, {
           age: state.age,
           eventId: event.id,
@@ -191,6 +217,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           attributeChanges: choice.effects.attributes ?? {},
         }],
         triggeredEventIds: newTriggeredIds,
+        nearDeathCount: state.nearDeathCount + (eventHasLethalOption ? 1 : 0),
         phase: { type: "playing", step: "effect_resolving" },
         currentEvent: null,
         pendingChoices: null,
@@ -248,6 +275,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...loaded,
         triggeredEventIds: triggered,
+        nearDeathCount: loaded.nearDeathCount ?? 0,
       };
     }
 
