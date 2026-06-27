@@ -12,6 +12,7 @@ import { FortuneSystem } from "./components/FortuneSystem";
 import { Fortune } from "./constants/fortunes";
 import { HomePage } from "./pages/HomePage";
 import { GachaPage } from "./pages/GachaPage";
+import { LifePage } from "./pages/LifePage";
 
 const STORAGE_DATE_KEY = "esu_fortune_date";
 const STORAGE_KEY = "esu_fortune_daily";
@@ -69,15 +70,16 @@ function AppContent({
       <main className="relative z-20 min-h-screen bg-canvas text-primary font-sans selection:bg-primary selection:text-canvas">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route 
-            path="/gacha" 
+          <Route
+            path="/gacha"
             element={
-              <GachaPage 
-                onOpenFortune={onOpenFortune} 
+              <GachaPage
+                onOpenFortune={onOpenFortune}
                 dailyFortune={dailyFortune}
               />
-            } 
+            }
           />
+          <Route path="/life" element={<LifePage />} />
         </Routes>
       </main>
       {showFooter && <Footer />}

@@ -12,6 +12,8 @@ coverage/
 .dev.vars*
 !.dev.vars.example
 .claude/
+.mcp.json
 pic/
 scripts/
 fortunes/
+.gstack/
