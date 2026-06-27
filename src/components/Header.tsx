@@ -68,7 +68,7 @@ export function Header() {
         {/* Center Logo */}
         <motion.div
           style={{ scale: logoScale }}
-          className={`flex justify-center items-center ${!isHomePage ? "md:opacity-0 pointer-events-none" : ""}`}
+          className={`flex justify-center items-center ${isLifePage ? "md:opacity-0 pointer-events-none" : ""}`}
         >
           <button 
             onClick={() => {
@@ -107,8 +107,8 @@ export function Header() {
         <div className="md:hidden" />
       </div>
       
-      <motion.div 
-        className="absolute bottom-0 left-0 h-[1px] bg-primary"
+      <motion.div
+        className="absolute bottom-0 left-0 h-[1px] bg-secondary"
         style={{ width: useTransform(scrollYProgress, [0, 1], ["0%", "100%"]) }}
       />
     </motion.header>
