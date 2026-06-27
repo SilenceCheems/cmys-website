@@ -14,9 +14,5 @@
   - 电影式黑场结局 + 人生回顾
   - 自动存档与恢复
 
-## 开发
 
-```bash
-npm install
-npm run dev
 ```
