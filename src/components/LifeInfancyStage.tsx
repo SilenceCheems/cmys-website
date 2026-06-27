@@ -42,7 +42,7 @@ export function LifeInfancyStage() {
               choiceText: e.choices[0]?.text ?? "",
               attributeChanges: e.choices[0]?.effects?.attributes ?? {},
             })),
-            triggeredEventIds: new Set(infancyEvents.map((e) => e.id)),
+            triggeredEventIds: Object.fromEntries(infancyEvents.map((e) => [e.id, 6])),
           },
         });
       }, 800);
