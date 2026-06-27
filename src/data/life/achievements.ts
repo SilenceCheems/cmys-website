@@ -63,7 +63,7 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "触发过所有爱情相关事件",
     score: 30,
     check: (s) => {
-      const loveEventIds = ["a_love_first", "p_mid_family", "p_young_moon_toast"];
+      const loveEventIds = ["a_love_first", "p_mid_family", "p_young_moon_toast", "p_love_unrequited", "p_love_reunion"];
       return loveEventIds.every((id) => id in s.triggeredEventIds);
     },
   },
@@ -73,12 +73,7 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
     description: "逃过 3 次以上即死选项",
     score: 50,
     check: (s) => {
-      // 统计 eventLog 中结果包含致死风险但未实际死亡的标记
-      // 简化方案：触发过 3+ 个含 isLethal 选项的事件但未死
-      const nearDeathEvents = s.eventLog.filter((e) =>
-        ["p_elder_curtain", "a_mid_thirty"].includes(e.eventId)
-      );
-      return nearDeathEvents.length >= 1; // 保守实现，后续可精确追踪
+      return s.nearDeathCount >= 3 && s.deathRecord === null;
     },
   },
   {
